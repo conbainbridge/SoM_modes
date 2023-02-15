@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Streams of mind</title>
+    <link rel="stylesheet" type="text/css" href="./jspsych/dist/jspsych.css">
+    <script src="./jspsych/dist/jspsych.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-keytrack.js"></script>
+    <script src="./jspsych/dist/plugin-html-keyboard-response.js"></script>
+    <script src="./jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="./jspsych/dist/plugin-audio-button-response.js"></script>
+
+    <script src="./jspsych/dist/plugin-initialize-microphone.js"></script>
+    <script src="./jspsych/dist/plugin-html-audio-response.js"></script>
+
+    <script src="./jspsych/dist/plugin-survey-multi-choice.js"></script>
+    <script src="./jspsych/dist/plugin-survey-multi-select.js"></script>
+    <script src="./jspsych/dist/plugin-survey-likert.js"></script>
+    <!-- <script src="./jspsych/dist/custom/plugin-survey-keytrack.js"></script>
+    <script src="./jspsych/dist/custom/jspsych-survey-text-number.js"></script>
+    <script src="./jspsych/dist/custom/jspsych-survey-text-dropdown.js"></script>
+    <script src="./jspsych/dist/custom/jspsych-audio-button-mousetrack.js"></script> -->
+  </head>
+  <body></body>
+
+<script>
+    // Initialize JsPsych
+    var jsPsych = initJsPsych({
+    use_webaudio: false,
+    on_finish: function(){
+        jsPsych.data.displayData();
+    }
+    });
+
+    var timeline = [];
+    var microphone = {
+        type: jsPsychInitializeMicrophone
+    };
+
+    const hello_trial = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: 'Hello world!'
+    }
+    timeline.push(hello_trial)
+    
+    // Initialize randomized condition
+    var condArray = ['PPrF', 'FPrP'];
+    var randomCond = jsPsych.randomization.shuffle(condArray);
+    var condition = randomCond[0]
+
+    /* ~~~ CONSENT ~~~ */
+    // EDIT THIS! Include inline form with the proper study info sheet
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+        button_html: '<button class="jspsych-btn" style="margin-bottom: 10px">%choice%</button>',
+        stimulus: '<p align="center">Before you decide to participate, please read the following information:</p>'+
+        '<p align="center">University of California, Los Angeles<br />'+
+        '<b>RESEARCH INFORMATION SHEET</b><br />'+
+        'Language in streams of consciousness</p>'+
+        '<p align="left"><b>INTRODUCTION</b></p>'+
+        '<p align="left">Constance Bainbridge and Dr. Rick Dale from the Department of Communication at the University of California, Los Angeles are conducting a research study. You were selected as a possible participant in this study because you are 18+ and are included in the Communication Study Pool at UCLA.  Your participation in this research study is voluntary.</p>'+
+        '<p align="left"><b>WHAT SHOULD I KNOW ABOUT A RESEARCH STUDY?</b></p>'+
+        '<p align="left"><ul><li align="left">This research study will be explained to you in detail in writing.</li>'+
+        '<li align="left">Whether or not you take part is up to you.</li>'+
+        '<li align="left">You can choose not to take part.</li>'+
+        '<li align="left">You can agree to take part and later change your mind.</li>'+
+        '<li align="left">Your decision will not be held against you.</li>'+
+        '<li align="left">You can ask all the questions you want before you decide.</li></ul></p>'+
+        '<p align="left"><b>WHY IS THIS RESEARCH BEING DONE?</b></p>'+
+        '<p align="left">The goal of this study is to explore your thoughts, feelings, and experiences using a few prompts in a stream of consciousness writing activity. This website will capture a snapshot of your thought process as you’re typing.</p>'+
+        '<p align="left"><b>HOW LONG WILL THE RESEARCH LAST AND WHAT WILL I NEED TO DO?</b></p>'+
+        '<p align="left">Participation will take a total of about 60 minutes and you will be awarded 1 course credit. Partial credit may be awarded if you have completed at least one writing prompt.</p>'+
+        '<p align="left">If you volunteer to participate in this study, the researcher will ask you to do the following:</p>'+
+        '<p align="left"><ul><li align="left">Type out your thoughts, feelings, and experiences in three stream of consciousness style typing tasks.</li>'+
+        '<li align="left">Answer a few questions about yourself, including questions about your demographics and surveys on a few personality traits.</li>'+
+        '<li align="left">The entire study will take place online in this interface, and there will be a link at the end to return to SONA to automatically credit your account with course credit for study completion.</li></ul>'+
+        '<p align="left"><b>ARE THERE ANY RISKS IF I PARTICIPATE?</b></p>'+
+        '<p align="left">No potential risks or direct discomforts are anticipated. Because you may write whatever you feel in the study prompts, you may experience some discomfort depending on the topics you explore in your writing.</p>'+
+        '<p align="left"><b>ARE THERE ANY BENEFITS IF I PARTICIPATE?</b></p>'+
+        '<p align="left">You will not directly benefit from your participation in the research.</p>'+
+        '<p align="left">The results of the research may help us to better understand the thoughts, feelings, and experiences people choose to write about under a stream of consciousness format.</p>'+
+        '<p align="left">If you choose not to participate, you may exit out of the study at any point by closing the webpage. Your alternative to participating in this research study is to not participate.</p>'+
+        '<p align="left"><b>HOW WILL INFORMATION ABOUT ME AND MY PARTICIPATION BE KEPT CONFIDENTIAL?</b><p>'+
+        '<p align="left">The researchers will do their best to make sure that your private information is kept confidential. Information about you will be handled as confidentially as possible, but participating in research may involve a loss of privacy and the potential for a breach in confidentiality. Study data will be physically and electronically secured.  As with any use of electronic means to store data, there is a risk of breach of data security.</p>'+
+        '<p align="left"><b>Use of personal information that can identify you:</b><br />Personal information will be separated from your responses. Participant data will be analyzed altogether, so your writing will not be published or shared publicly on its own, in case there is identifying information in the text.'+
+        '<p align="left"><b>How information about you will be stored:</b><br />Data will be locally stored on the researchers\' computers and separated from identifying information. The filenames will not have identifying information in them. Data will be analyzed all together, such that data will not be linked on the individual level.</p>'+
+        '<p align="left"><b>People and agencies that will have access to your information:</b><br />The research team and authorized UCLA personnel may have access to study data and records to monitor the study.  Research records provided to authorized, non-UCLA personnel will not contain identifiable information about you. Publications and/or presentations that result from this study will not identify you by name.</p>'+
+        '<p align="left">Employees of the University may have access to identifiable information as part of routine processing of your information, such as lab work or processing credits. However, University employees are bound by strict rules of confidentiality.</p>'+
+        '<p align="left"><b>How long information from the study will be kept:</b></p>'+
+        '<p align="left">The data will be kept for 10 years.</p>'+
+        '<p align="left"><b>USE OF DATA FOR FUTURE RESEARCH</b></p>'+
+        '<p align="left">Your data, including de-identified data may be kept for use in future research.</p>'+
+        '<p align="left"><b>WHO CAN I CONTACT IF I HAVE QUESTIONS ABOUT THIS STUDY?</b></p>'+
+        '<p align="left"><b>The research team:</b><br />'+
+        'If you have any questions, comments or concerns about the research, you can talk to the one of the researchers. Please contact either: cbainbridge@ucla.edu or rdale@ucla.edu'+
+        '<p align="left"><b>UCLA Office of the Human Research Protection Program (OHRPP):</b><br />'+
+        'If you have questions about your rights as a research subject, or you have concerns or suggestions and you want to talk to someone other than the researchers, you may contact the UCLA OHRPP by phone: (310) 206-2040; by email: participants@research.ucla.edu or by mail: Box 951406, Los Angeles, CA 90095-1406.</p>'+
+        '<p align="left"><b>WHAT ARE MY RIGHTS IF I TAKE PART IN THIS STUDY?</b></p>'+
+        '<p align="left"><ul><li align="left">You can choose whether or not you want to be in this study, and you may withdraw your consent and discontinue participation at any time.</li>'+
+        '<li align="left">Whatever decision you make, there will be no penalty to you, and no loss of benefits to which you were otherwise entitled.</li>'+
+        '<li align="left">You may refuse to answer any questions that you do not want to answer and still remain in the study.</li></ul></p>'+
+        '<p align="left"><b><i>You may save a copy of this information to keep for your records.</i></b></p>',
+        choices: ['Next']
+    };
+
+    /* ~~~ TRIALS ~~~ */
+    // Intro
+    var intro = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>In this task, you will be sharing your thoughts as they flow out in a stream of consciousness - whatever comes to mind.</p><p><b>Please write as though you were thinking aloud - don\'t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</b></p><p>You will have 10 minutes per prompt to share as much as you want.</p>'+
+        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+        choices: ['Begin']
+    };
+
+    var mic_permission = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>In order to complete this study, you will need to give access to the microphone on your device.</p>',
+        choices: ['Grant access']
+    };
+
+    timeline.push(mic_permission, microphone);
+
+
+    var prompt_typed = {
+        timeline: [
+            {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<p>You will be <b>typing</b> your thoughts as they flow out in a stream-of-consciousness. Write as though you were thinking aloud in free form. Don’t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</p>'+
+                '<p>You will be given a space to type out your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop typing unless your thoughts have stopped flowing.</p>',
+                prompt: '',
+                choices: ['Begin']
+            },
+            {
+                type: jsPsychSurveyText,
+                questions: [{
+                    prompt: '<p>You will be <b>typing</b> your thoughts as they flow out in a stream-of-consciousness. Write as though you were thinking aloud in free form. Don’t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</p>'+
+                    '<p>You will be given a space to type out your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop typing unless your thoughts have stopped flowing.</p>'+
+                    '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+                    rows: 50, columns: 100
+                }],
+                button_label: 'Next'
+            }
+        ],
+        data: {"trialType": "present", "condition": condition}
+        // trial_duration: '600000'
+    };
+    // timeline.push(prompt_typed)
+
+    var prompt_spoken = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>You will be <b>speaking</b> your thoughts as they flow out in a stream-of-consciousness. Speak as though you were thinking aloud in free form. Don’t worry about being grammatically correct or speaking in complete sentences unless it feels natural to your thought process.</p>'+
+        '<p>You will be see an audio recorder on the next page to share your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop speaking unless your thoughts have stopped flowing.</p>',
+        prompt: '',
+        choices: ['Record']
+    };
+
+    var recorder = {
+        type: jsPsychHtmlAudioResponse,
+        stimulus: '<p>Recording now...</p>',
+        recording_duration: 10000,
+        save_audio_url: true
+    }
+
+    // Figure out how to save the file locally, how to decode base64 url into a file that can be decoded, or an actual audio file
+    var replay_spoken = {
+        type: jsPsychAudioButtonResponse,
+            stimulus: ()=>{
+                var recording = jsPsych.data.get().last(1).values()[0].audio_url;
+                console.log(recording)
+                return jsPsych.data.get().last(1).values()[0].audio_url;
+            },
+            prompt: '<p>How does it sound?.</p>',
+            choices: ['Meow', 'Woof'],
+    }
+
+    timeline.push(prompt_spoken, recorder, replay_spoken)
+
+    /* ~~~ SURVEY ~~~ */
+    // Demographics
+    var langList = [
+    'English', 'Abenaki', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Ainu', 'Aklanon', 'Albanian', 'Algerian', 'American Sign Language', 'Apache', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Avestan', 'Ayapathu', 'Aymara', 'Azeri', 'Balinese', 'Bamwe', 'Bantu', 'Basa', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Berber', 'Betawi', 'Bicol', 'Bisaya', 'Bobangi', 'Bosnian', 'Brahui', 'Breton', 'Butuanon', 'Bukusu', 'Bulgarian', 'Burmese', 'Carib', 'Catalan', 'Catawba', 'Cayuga', 'Cebuano', 'Chamorro', 'Chechen', 'Cherokee', 'Chewa', 'Cheyenne', 'Chickasaw', 'Chinese/Cantonese/Yue', 'Chinese/Danzhou', 'Chinese/Gan', 'Chinese/Hakka', 'Chinese/Hokkien', 'Chinese/Mandarin', 'Chinese/Min Bei', 'Chinese/Min Dong', 'Chinese/Min Zhong', 'Chinese/Pu Xian', 'Chinese/Qiong Wen', 'Chinese/Shao Jiang', 'Chinese/Shaozhou Tuhua', 'Chinese/Taiwanese/Min Nan/Hokkien', 'Chinese/Wu/Shanghainese', 'Chinese/Xiang/Hunanese', 'Chinese/Xianghua', 'Chinese/Yue', 'Chinook', 'Ch\'ol', 'Chorti', 'Cispa', 'Coptic', 'Cornish', 'Corsican', 'Cree', 'Creole', 'Croatian', 'Czech', 'Danish', 'Delaware', 'Demonh\'ka', 'Denya', 'Duma', 'Dutch', 'Eggon', 'Ejagham', 'Ekegusii', 'Emakua', 'Eskimo', 'Esperanto', 'Estonian', 'Ewe', 'Fang', 'Faroese', 'Farsi', 'Finnish', 'Flemish', 'Frankish', 'French', 'Frisian', 'Fulfulde', 'Gaelic', 'Galician', 'Gaulish', 'Gamilaraay', 'Ganda', 'Gbari', 'Georgian', 'German', 'Gevove', 'Gilbertese', 'Ginyama', 'Gothic', 'Greek', 'Guarani', 'Gujarati', 'Gullah', 'Haida', 'Hakka', 'Hawaiian', 'Hausa', 'Hiligaynon', 'Hebrew', 'Hmong', 'Hindi', 'Hittite', 'Holoholo', 'Hungarian', 'Icelandic', 'Igbo', 'Ilongo', 'Indonesian', 'Ingush', 'Interlingua', 'Inuktitut', 'Inzebi', 'Irish', 'Ishkashmi', 'Italian', 'Jangshung', 'Japanese', 'Jita', 'Kalanga', 'Kannada', 'Kapampangan', 'Karelian', 'Kamviri', 'Karuk', 'Kashubian', 'Katcha', 'Kazakh', 'Kerewe', 'Khakas', 'Khmer', 'Khowar', 'Kiga', 'Kinyarwanda', 'Kituba', 'Klallam', 'Konkani', 'Korean', 'Koromfé', 'Koyo', 'Kurdish', 'Kyrgyz', 'Lao', 'Lakhota', 'Latgalian', 'Latin', 'Latvian', 'Lingala', 'Lithuanian', 'Livonian', 'Lojban', 'Lozi', 'Luxembourgish', 'Luwian', 'Lydian', 'Macedonian', 'Malagasy', 'Malay', 'Maliseet', 'Malayalam', 'Maltese', 'Mambwe', 'Manchu', 'Mandinka', 'Manx', 'Maori', 'Mapudungun', 'Marathi', 'Masaba', 'Mayan', 'Mayangna', 'Mawu', 'Miami', 'Michif', 'Miskitu', 'Mixtec', 'Mohawk', 'Mongolian', 'Mpongwe', 'Nahuatl', 'Nande', 'Nanticoke', 'Nauruan', 'Navajo', 'Ndebele', 'Nepalese', 'Newari', 'Nhirrpi', 'Norwegian', 'Nyambo', 'Nyamwezi', 'Occitan', 'Ojibwe', 'Olkola', 'Olutec', 'Onondaga', 'Oriya', 'Oscan', 'Oykangand', 'Pahlavi', 'Pakahn', 'Pali', 'Papiamento', 'Pashto', 'Pende', 'Passamdy', 'Phrygian', 'Pirahã', 'Polish', 'Popoluca', 'Portuguese', 'Potawatomi', 'Pulaar', 'Punjabi', 'Quechua', 'Quenya', 'Rapa Nui', 'Rasta', 'Rejang', 'Romani', 'Romanian', 'Roviana', 'Rotuman', 'Russian', 'Saanich', 'Saami', 'Samoan', 'Sanskrit', 'Sardinian', 'Scots', 'Serbian', 'Seri', 'Sherpa', 'Shi', 'Sina Bidoyoh', 'Shona', 'Shoshoni', 'Sindarin', 'Sinhalese', 'Slovak', 'Slovene', 'Sogdian', 'Somali', 'Sorbian', 'Spanish', 'Sranan', 'Sûdovian', 'Sumerian', 'Swabian', 'Swahili', 'Swedish', 'Swiss German', 'Tagalog', 'Tamasheq', 'Tahitian', 'Taino', 'Tajik', 'Tamazight', 'Tamil', 'Tarahumara', 'Tarok', 'Tatar', 'Telugu', 'Tetan', 'Thai', 'Tibetan', 'Tlingit', 'Tocharian', 'Tongan', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Ulwa', 'Umbrian', 'Üqoi', 'Urdu', 'Uyghur', 'Uzbek', 'Venda', 'Veps', 'Vietnamese', 'Votic', 'Wagiman', 'Walloon', 'Warlpiri', 'Welsh', 'Wolof', 'Wyandot', 'Xhosa', 'Yaka', 'Yao', 'Yemba', 'Yiddish', 'Yoruba', 'Zarma', 'Zoque', 'Zulu', 'Other'
+    ];
+
+    var countryList = [
+    'United States', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Artsakh', 'Australia', 'Austria', 'Azerbaijan', 'The Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Democratic Republic of the Congo', 'Cook Islands', 'Costa Rica', 'Côte d\'Ivoire', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'The Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'South Korea', 'Democratic People\'s Republic of Korea', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'The Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Northern Cyprus', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Sahrawi Arab Democratic Republic', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'São Tomé and Príncipe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'Somaliland', 'South Africa', 'South Ossetia', 'Spain', 'Sri Lanka', 'Sudan', 'South Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Transnistria', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+    ]
+
+    var USstateList = [
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'District of Columbia',
+    'Florida',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming'
+    ]
+
+    var surveyIntro = {
+    type: 'html-button-response',
+    stimulus: '<p align="center">Now we have a few questions about you.</p><p></p><br>',
+    choices: ['Next']
+    };
+
+    var demographics = {
+    timeline: [
+        {
+            type: 'survey-text-number',
+            questions: [{ prompt: '<p align="center">How old are you?</p>', min_number: 18 }],
+            data: {"trialType": "age"},
+        },
+        {
+            type: 'html-button-response',
+            stimulus: '<p align="center">What is your gender?</p>',
+            prompt: '',
+            choices: ['Female', 'Male', 'Other', 'Prefer not to answer'],
+            data: {"trialType": "gender"}
+        }
+    ]
+    };
+
+    var language = {
+    type: 'survey-text-dropdown',
+    questions: [
+        {
+        prompt: '<p align="center">What is your first/native language?</p>',
+        choices: langList
+        }
+    ],
+    data: {"trialType": "nativeLang"}
+    };
+
+    var country = {
+    type: 'survey-multi-select',
+    questions: [
+        {
+            prompt: '<p align="center">What country/countries have you lived in during the covid-19 pandemic?</p>',
+            options: countryList,
+            horizontal: true,
+            required: false,
+            name: 'country'
+        },
+    ],
+    data: { "trialType": "country"}
+    }
+
+    var USstate = {
+    type: 'survey-multi-select',
+    questions: [
+        {
+            prompt: '<p align="center">What US states have you lived in during the covid-19 pandemic?</p>',
+            options: USstateList,
+            horizontal: true,
+            required: false,
+            name: 'state'
+        },
+    ],
+    data: { "trialType": "state"}
+    }
+
+    var USConditional = {
+    timeline: [USstate],
+    conditional_function: function(data) {
+    var response = jsPsych.data.get().filter({trial_type: 'survey-multi-select'}).values()[0].response.country;
+    if (response.includes('United States')) {
+    return true;
+    } else {
+    return false;
+    }
+    }
+    };
+
+    var journal = {
+    type: 'html-button-response',
+    stimulus: '<p align="center">Do you keep a journal or diary?</p>',
+    choices: ['Yes', 'No', 'Prefer not to say'],
+    data: { "trialType": "journal"}
+    }
+
+    var journalFreq = {
+    type: 'survey-multi-choice',
+    questions: [
+        {
+            prompt: '<p align="center">How often do you write in your journal/diary?</p>',
+            options: ['Everyday', 'A few times a week', 'Around once a week', 'Around once a month', 'Less frequently'],
+            horizontal: true,
+            required: false,
+            name: 'journalFreq'
+        },
+    ],
+    data: { "trialType": "journalFreq"}
+    }
+
+    var journalConditional = {
+    timeline: [journalFreq],
+    conditional_function: function() {
+        var button = jsPsych.data
+        .get()
+        .last(1)
+        .values()[0].response;
+        if (button == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    };
+
+    // Mood and personality questions
+    var social = {
+    type: 'survey-multi-choice',
+    preamble: '<p align="left">Read each following statements and select the appropriate response to indicate how accurately you feel it describes how you feel, on a scale from 1 to 6.</p><br><table align="center"><tr><th>Strongly agree</th><th>&emsp;1&emsp;</th><th>&emsp;2&emsp;</th><th>&emsp;3&emsp;</th><th>&emsp;4&emsp;</th><th>&emsp;5&emsp;</th><th>&emsp;6&emsp;</th><th>Strongly disagree</th></tr></table><br>',
+    questions: [
+        {
+            prompt: 'I feel disconnected from the world around me.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC1'
+        },
+        {
+            prompt: 'Even around people I know, I don\'t feel that I really belong.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC2'
+        },
+        {
+            prompt: 'I feel so distant from people.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC3'
+        },
+        {
+            prompt: 'I have no sense of togetherness with my peers.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC4'
+        },
+        {
+            prompt: 'I don\'t feel related to anyone.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC5'
+        },
+        {
+            prompt: 'I catch myself losing all sense of connectedness with society.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC6'
+        },
+        {
+            prompt: 'Even among my friends, there is no sense of brother/sisterhood.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC7'
+        },
+        {
+            prompt: 'I don\'t feel I participate with anyone or any group.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialC8'
+        },
+        {
+            prompt: 'I feel more comfortable when someone is constantly with me.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA1'
+        },
+        {
+            prompt: 'I\'m more at ease doing things together with other people.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA2'
+        },
+        {
+            prompt: 'Working side by side with others is more comfortable than working alone.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA3'
+        },
+        {
+            prompt: 'My life is incomplete without a buddy beside me.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA4'
+        },
+        {
+            prompt: 'It\'s hard for me to use my skills and talents without someone beside me.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA5'
+        },
+        {
+            prompt: 'I stick to my friends like glue.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA6'
+        },
+        {
+            prompt: 'I join groups more for the friendship than the activity itself.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA7'
+        },
+        {
+            prompt: 'I wish to find someone who can be with me all the time.',
+            options: ['1', '2', '3', '4', '5', '6'],
+            horizontal: true,
+            required: false,
+            name: 'socialA8'
+        }
+    ],
+    data: {"trialType": "social"}
+    }
+
+    var cognition = {
+    type: 'survey-multi-choice',
+    preamble: '<p align="left">For each statement listed below, choose the number that indicates the extent to which you feel it is characteristic of you. For example, if the statement is not at all like you, select number 1 for \"Extremely Uncharacteristic,\" or if you really can\'t decide if the statement is or is not characteristic of you, select number 3 for \"Uncertain.\"</p>',
+    questions: [
+        {
+            prompt: 'I would prefer complex to simple problems.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition1'
+        },
+        {
+            prompt: 'I like to have the responsibility of handling a situation that requires a lot of thinking.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition2'
+        },
+        {
+            prompt: 'Thinking is not my idea of fun.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition3-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I would rather do something that requires little thought than something that is sure to challenge my thinking abilities.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition4-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I try to anticipate and avoid situations where there is likely a chance I will have to think in depth about something.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition5-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I find satisfaction in deliberating hard and for long hours.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition6'
+        },
+        {
+            prompt: 'I only think as hard as I have to.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition7-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I prefer to think about small, daily projects to long-term ones.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition8-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I like tasks that require little thought once I\'ve learned them.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition9-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'The idea of relying on thought to make my way to the top appeals to me.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition10'
+        },
+        {
+            prompt: 'I really enjoy a task that involves coming up with new solutions to problems.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition11'
+        },
+        {
+            prompt: 'Learning new ways to think doesn\'t excite me very much.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition12-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I prefer my life to be filled with puzzles that I must solve.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition13'
+        },
+        {
+            prompt: 'The notion of thinking abstractly is appealing to me.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition14'
+        },
+        {
+            prompt: 'I would prefer a task that is intellectual, difficult, and important to one that is somewhat important but does not require much thought.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition15'
+        },
+        {
+            prompt: 'I feel relief rather than satisfaction after completing a task that required a lot of mental effort.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition16-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'It\'s enough for me that something gets the job done; I don\'t care how or why it works.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition17-rc' //rc indicate reverse coded
+        },
+        {
+            prompt: 'I usually end up deliberating about issues even when they do not affect me personally.',
+            options: ['1', '2', '3', '4', '5'],
+            horizontal: true,
+            required: false,
+            name: 'cognition18'
+        }
+    ],
+    data: {"trialType": "cognition"}
+    }
+
+    var rumination = {
+    type: 'survey-multi-choice',
+    preamble: '<p align="left">People think and do many different things when they feel depressed. Please read each of the items below and indicate whether you almost never, sometimes, often, or almost always think or do each one when you feel down, sad, or depressed. Please indicate what you generally do, not what you think you should do. Use the following scale to report your answer:</p><br><table align="center"><tr><th>Almost never</th><th>&emsp;1&emsp;</th><th>Sometimes</th><th>&emsp;2&emsp;</th><th>Often</th><th>&emsp;3&emsp;</th><th>Almost always</th><th>&emsp;4&emsp;</th></tr></table><br>',
+    questions: [
+        {
+            prompt: 'Think about how alone you feel.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination1'
+        },
+        {
+            prompt: 'Think \"I won\'t be able to do my job if I don\'t snap out of this.\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination2'
+        },
+        {
+            prompt: 'Think about your feelings of fatigue and achiness.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination3'
+        },
+        {
+            prompt: 'Think about how hard it is to concentrate',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination4'
+        },
+        {
+            prompt: 'Think \"What am I doing to deserve this?\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination5'
+        },
+        {
+            prompt: 'Think about how passive and unmotivated you feel.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination6'
+        },
+        {
+            prompt: 'Analyze recent events to try to understand why you are depressed.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination7'
+        },
+        {
+            prompt: 'Think about how you don\'t seem to feel anything anymore.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination8'
+        },
+        {
+            prompt: 'Think \"Why can\'t I get going?\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination9'
+        },
+        {
+            prompt: 'Think \"Why do I always react this way?\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination10'
+        },
+        {
+            prompt: 'Go away by yourself and think about why you feel this way.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination11'
+        },
+        {
+            prompt: 'Write down what you are thinking and analyze it.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination12'
+        },
+        {
+            prompt: 'Think about a recent situation, wishing it had gone better.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination13'
+        },
+        {
+            prompt: 'Think \"I won\'t be able to concentrate if I keep feeling this way.\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination14'
+        },
+        {
+            prompt: 'Think \"Why do I have problems other people don\'t have?\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination15'
+        },
+        {
+            prompt: 'Think \"Why can\'t I handle things better?\"',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination16'
+        },
+        {
+            prompt: 'Think about how sad you feel.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination17'
+        },
+        {
+            prompt: 'Think about all your shortcomings, failings, faults, mistakes.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination18'
+        },
+        {
+            prompt: 'Think about how you don\'t feel up to doing anything.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination19'
+        },
+        {
+            prompt: 'Analyze your personality to try to understand why you are depressed.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination20'
+        },
+        {
+            prompt: 'Go someplace alone to think about your feelings.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination21'
+        },
+        {
+            prompt: 'Think about how angry you are with yourself.',
+            options: ['1', '2', '3', '4'],
+            horizontal: true,
+            required: false,
+            name: 'rumination22'
+        }
+    ],
+    data: {"trialType": "rumination"}
+    }
+
+    var urlParam = window.location.search;
+    var userID = urlParam.replace('?id=', '');
+
+    var debrief = {
+    type: 'html-button-response',
+    stimulus: `<p>Thank you for participating in this study!</p><p>In this study, we\’re interested in understanding how people think about the past, present, and future when considering the COVID-19 pandemic. We're also interested in how differences between individuals may be predictive of how they write in a stream of consciousness style format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
+    choices: ['Return to SONA for credit'],
+    }
+
+
+    /* ~~~ END ~~~ */
+
+
+    // // Build out timeline
+    // timeline.push(
+    // welcome,
+    // // intro
+    // );
+
+    // if (condition == 'PPrF') {
+    //     timeline.push(
+    //         prompt_past,
+    //         prompt_future,
+    //         prompt_present,
+    //     );
+    // } else if (condition == 'FPrP') {
+    //     timeline.push(
+    //         prompt_present,
+    //         prompt_future,
+    //         prompt_past,
+    //     );
+    // }
+
+    timeline.push(
+    // surveyIntro,
+    // demographics,
+    // language,
+    // country,
+    // USConditional,
+    // prompt_future // for testing prompt feel
+    // journal,
+    // journalConditional
+    );
+
+    // var personalityArray = [social, cognition, rumination];
+    // var personalityArrayR = jsPsych.randomization.shuffle(personalityArray);
+    // timeline.push(personalityArrayR[0], personalityArrayR[1], personalityArrayR[2]);
+
+    // timeline.push(
+    // debrief
+    // );
+
+    // Experiment logic
+    // let sona_id = jsPsych.data.urlVariables()['sona_id']
+
+    jsPsych.run(timeline)
+	</script>
+</html>
