@@ -24,11 +24,41 @@
   <body></body>
 
 <script>
+    function downloadBlob(blob, filename) {
+        // Create a temporary download link
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function downloadAudio(jsPsychData) {
+        const trials = jsPsychData.trials;
+        trials
+            .filter(trial => trial.trial_type == "html-audio-response")
+            .forEach(atrial => {
+                const base64AudioStr = atrial.response;
+                const binaryData = window.atob(base64AudioStr);
+                const buffer = new ArrayBuffer(binaryData.length);
+                const array = new Uint8Array(buffer);
+                for (let i = 0; i < binaryData.length; i++) {
+                    array[i] = binaryData.charCodeAt(i);
+                }
+                const blob = new Blob([array], { type: 'audio/wav' });
+                const filename = `tmp.${atrial.internal_node_id}.wav`
+                downloadBlob(blob, filename);
+            });
+    }
+
     // Initialize JsPsych
     var jsPsych = initJsPsych({
     use_webaudio: false,
     on_finish: function(){
         jsPsych.data.displayData();
+        downloadAudio(jsPsych.data.get());
     }
     });
 
