@@ -6,6 +6,11 @@
     <link rel="stylesheet" type="text/css" href="./jspsych/dist/jspsych.css">
     <script src="./jspsych/dist/jspsych.js"></script>
     <script src="./jspsych/dist/custom_plugins/plugin-survey-keytrack.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-audio-keytrack.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-multi-choice-center.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-ranking.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-text-number.js"></script>
+
     <script src="./jspsych/dist/plugin-html-keyboard-response.js"></script>
     <script src="./jspsych/dist/plugin-html-button-response.js"></script>
     <script src="./jspsych/dist/plugin-audio-button-response.js"></script>
@@ -13,13 +18,10 @@
     <script src="./jspsych/dist/plugin-initialize-microphone.js"></script>
     <script src="./jspsych/dist/plugin-html-audio-response.js"></script>
 
-    <script src="./jspsych/dist/plugin-survey-multi-choice.js"></script>
     <script src="./jspsych/dist/plugin-survey-multi-select.js"></script>
+    <script src="./jspsych/dist/plugin-survey-multi-choice.js"></script>
     <script src="./jspsych/dist/plugin-survey-likert.js"></script>
-    <!-- <script src="./jspsych/dist/custom/plugin-survey-keytrack.js"></script>
-    <script src="./jspsych/dist/custom/jspsych-survey-text-number.js"></script>
-    <script src="./jspsych/dist/custom/jspsych-survey-text-dropdown.js"></script>
-    <script src="./jspsych/dist/custom/jspsych-audio-button-mousetrack.js"></script> -->
+    <script src="./jspsych/dist/plugin-survey-text.js"></script>
   </head>
   <body></body>
 
@@ -72,7 +74,7 @@
       stimulus: 'Hello world!'
     }
     timeline.push(hello_trial)
-    
+
     // Initialize randomized condition
     var condArray = ['PPrF', 'FPrP'];
     var randomCond = jsPsych.randomization.shuffle(condArray);
@@ -148,9 +150,6 @@
         choices: ['Grant access']
     };
 
-    timeline.push(mic_permission, microphone);
-
-
     var prompt_typed = {
         timeline: [
             {
@@ -203,653 +202,1137 @@
             choices: ['Meow', 'Woof'],
     }
 
-    timeline.push(prompt_spoken, recorder, replay_spoken)
-
     /* ~~~ SURVEY ~~~ */
     // Demographics
     var langList = [
-    'English', 'Abenaki', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Ainu', 'Aklanon', 'Albanian', 'Algerian', 'American Sign Language', 'Apache', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Avestan', 'Ayapathu', 'Aymara', 'Azeri', 'Balinese', 'Bamwe', 'Bantu', 'Basa', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Berber', 'Betawi', 'Bicol', 'Bisaya', 'Bobangi', 'Bosnian', 'Brahui', 'Breton', 'Butuanon', 'Bukusu', 'Bulgarian', 'Burmese', 'Carib', 'Catalan', 'Catawba', 'Cayuga', 'Cebuano', 'Chamorro', 'Chechen', 'Cherokee', 'Chewa', 'Cheyenne', 'Chickasaw', 'Chinese/Cantonese/Yue', 'Chinese/Danzhou', 'Chinese/Gan', 'Chinese/Hakka', 'Chinese/Hokkien', 'Chinese/Mandarin', 'Chinese/Min Bei', 'Chinese/Min Dong', 'Chinese/Min Zhong', 'Chinese/Pu Xian', 'Chinese/Qiong Wen', 'Chinese/Shao Jiang', 'Chinese/Shaozhou Tuhua', 'Chinese/Taiwanese/Min Nan/Hokkien', 'Chinese/Wu/Shanghainese', 'Chinese/Xiang/Hunanese', 'Chinese/Xianghua', 'Chinese/Yue', 'Chinook', 'Ch\'ol', 'Chorti', 'Cispa', 'Coptic', 'Cornish', 'Corsican', 'Cree', 'Creole', 'Croatian', 'Czech', 'Danish', 'Delaware', 'Demonh\'ka', 'Denya', 'Duma', 'Dutch', 'Eggon', 'Ejagham', 'Ekegusii', 'Emakua', 'Eskimo', 'Esperanto', 'Estonian', 'Ewe', 'Fang', 'Faroese', 'Farsi', 'Finnish', 'Flemish', 'Frankish', 'French', 'Frisian', 'Fulfulde', 'Gaelic', 'Galician', 'Gaulish', 'Gamilaraay', 'Ganda', 'Gbari', 'Georgian', 'German', 'Gevove', 'Gilbertese', 'Ginyama', 'Gothic', 'Greek', 'Guarani', 'Gujarati', 'Gullah', 'Haida', 'Hakka', 'Hawaiian', 'Hausa', 'Hiligaynon', 'Hebrew', 'Hmong', 'Hindi', 'Hittite', 'Holoholo', 'Hungarian', 'Icelandic', 'Igbo', 'Ilongo', 'Indonesian', 'Ingush', 'Interlingua', 'Inuktitut', 'Inzebi', 'Irish', 'Ishkashmi', 'Italian', 'Jangshung', 'Japanese', 'Jita', 'Kalanga', 'Kannada', 'Kapampangan', 'Karelian', 'Kamviri', 'Karuk', 'Kashubian', 'Katcha', 'Kazakh', 'Kerewe', 'Khakas', 'Khmer', 'Khowar', 'Kiga', 'Kinyarwanda', 'Kituba', 'Klallam', 'Konkani', 'Korean', 'Koromfé', 'Koyo', 'Kurdish', 'Kyrgyz', 'Lao', 'Lakhota', 'Latgalian', 'Latin', 'Latvian', 'Lingala', 'Lithuanian', 'Livonian', 'Lojban', 'Lozi', 'Luxembourgish', 'Luwian', 'Lydian', 'Macedonian', 'Malagasy', 'Malay', 'Maliseet', 'Malayalam', 'Maltese', 'Mambwe', 'Manchu', 'Mandinka', 'Manx', 'Maori', 'Mapudungun', 'Marathi', 'Masaba', 'Mayan', 'Mayangna', 'Mawu', 'Miami', 'Michif', 'Miskitu', 'Mixtec', 'Mohawk', 'Mongolian', 'Mpongwe', 'Nahuatl', 'Nande', 'Nanticoke', 'Nauruan', 'Navajo', 'Ndebele', 'Nepalese', 'Newari', 'Nhirrpi', 'Norwegian', 'Nyambo', 'Nyamwezi', 'Occitan', 'Ojibwe', 'Olkola', 'Olutec', 'Onondaga', 'Oriya', 'Oscan', 'Oykangand', 'Pahlavi', 'Pakahn', 'Pali', 'Papiamento', 'Pashto', 'Pende', 'Passamdy', 'Phrygian', 'Pirahã', 'Polish', 'Popoluca', 'Portuguese', 'Potawatomi', 'Pulaar', 'Punjabi', 'Quechua', 'Quenya', 'Rapa Nui', 'Rasta', 'Rejang', 'Romani', 'Romanian', 'Roviana', 'Rotuman', 'Russian', 'Saanich', 'Saami', 'Samoan', 'Sanskrit', 'Sardinian', 'Scots', 'Serbian', 'Seri', 'Sherpa', 'Shi', 'Sina Bidoyoh', 'Shona', 'Shoshoni', 'Sindarin', 'Sinhalese', 'Slovak', 'Slovene', 'Sogdian', 'Somali', 'Sorbian', 'Spanish', 'Sranan', 'Sûdovian', 'Sumerian', 'Swabian', 'Swahili', 'Swedish', 'Swiss German', 'Tagalog', 'Tamasheq', 'Tahitian', 'Taino', 'Tajik', 'Tamazight', 'Tamil', 'Tarahumara', 'Tarok', 'Tatar', 'Telugu', 'Tetan', 'Thai', 'Tibetan', 'Tlingit', 'Tocharian', 'Tongan', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Ulwa', 'Umbrian', 'Üqoi', 'Urdu', 'Uyghur', 'Uzbek', 'Venda', 'Veps', 'Vietnamese', 'Votic', 'Wagiman', 'Walloon', 'Warlpiri', 'Welsh', 'Wolof', 'Wyandot', 'Xhosa', 'Yaka', 'Yao', 'Yemba', 'Yiddish', 'Yoruba', 'Zarma', 'Zoque', 'Zulu', 'Other'
+      'English', 'Abenaki', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Ainu', 'Aklanon', 'Albanian', 'Algerian', 'American Sign Language', 'Apache', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Avestan', 'Ayapathu', 'Aymara', 'Azeri', 'Balinese', 'Bamwe', 'Bantu', 'Basa', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Berber', 'Betawi', 'Bicol', 'Bisaya', 'Bobangi', 'Bosnian', 'Brahui', 'Breton', 'Butuanon', 'Bukusu', 'Bulgarian', 'Burmese', 'Carib', 'Catalan', 'Catawba', 'Cayuga', 'Cebuano', 'Chamorro', 'Chechen', 'Cherokee', 'Chewa', 'Cheyenne', 'Chickasaw', 'Chinese/Cantonese/Yue', 'Chinese/Danzhou', 'Chinese/Gan', 'Chinese/Hakka', 'Chinese/Hokkien', 'Chinese/Mandarin', 'Chinese/Min Bei', 'Chinese/Min Dong', 'Chinese/Min Zhong', 'Chinese/Pu Xian', 'Chinese/Qiong Wen', 'Chinese/Shao Jiang', 'Chinese/Shaozhou Tuhua', 'Chinese/Taiwanese/Min Nan/Hokkien', 'Chinese/Wu/Shanghainese', 'Chinese/Xiang/Hunanese', 'Chinese/Xianghua', 'Chinese/Yue', 'Chinook', 'Ch\'ol', 'Chorti', 'Cispa', 'Coptic', 'Cornish', 'Corsican', 'Cree', 'Creole', 'Croatian', 'Czech', 'Danish', 'Delaware', 'Demonh\'ka', 'Denya', 'Duma', 'Dutch', 'Eggon', 'Ejagham', 'Ekegusii', 'Emakua', 'Eskimo', 'Esperanto', 'Estonian', 'Ewe', 'Fang', 'Faroese', 'Farsi', 'Finnish', 'Flemish', 'Frankish', 'French', 'Frisian', 'Fulfulde', 'Gaelic', 'Galician', 'Gaulish', 'Gamilaraay', 'Ganda', 'Gbari', 'Georgian', 'German', 'Gevove', 'Gilbertese', 'Ginyama', 'Gothic', 'Greek', 'Guarani', 'Gujarati', 'Gullah', 'Haida', 'Hakka', 'Hawaiian', 'Hausa', 'Hiligaynon', 'Hebrew', 'Hmong', 'Hindi', 'Hittite', 'Holoholo', 'Hungarian', 'Icelandic', 'Igbo', 'Ilongo', 'Indonesian', 'Ingush', 'Interlingua', 'Inuktitut', 'Inzebi', 'Irish', 'Ishkashmi', 'Italian', 'Jangshung', 'Japanese', 'Jita', 'Kalanga', 'Kannada', 'Kapampangan', 'Karelian', 'Kamviri', 'Karuk', 'Kashubian', 'Katcha', 'Kazakh', 'Kerewe', 'Khakas', 'Khmer', 'Khowar', 'Kiga', 'Kinyarwanda', 'Kituba', 'Klallam', 'Konkani', 'Korean', 'Koromfé', 'Koyo', 'Kurdish', 'Kyrgyz', 'Lao', 'Lakhota', 'Latgalian', 'Latin', 'Latvian', 'Lingala', 'Lithuanian', 'Livonian', 'Lojban', 'Lozi', 'Luxembourgish', 'Luwian', 'Lydian', 'Macedonian', 'Malagasy', 'Malay', 'Maliseet', 'Malayalam', 'Maltese', 'Mambwe', 'Manchu', 'Mandinka', 'Manx', 'Maori', 'Mapudungun', 'Marathi', 'Masaba', 'Mayan', 'Mayangna', 'Mawu', 'Miami', 'Michif', 'Miskitu', 'Mixtec', 'Mohawk', 'Mongolian', 'Mpongwe', 'Nahuatl', 'Nande', 'Nanticoke', 'Nauruan', 'Navajo', 'Ndebele', 'Nepalese', 'Newari', 'Nhirrpi', 'Norwegian', 'Nyambo', 'Nyamwezi', 'Occitan', 'Ojibwe', 'Olkola', 'Olutec', 'Onondaga', 'Oriya', 'Oscan', 'Oykangand', 'Pahlavi', 'Pakahn', 'Pali', 'Papiamento', 'Pashto', 'Pende', 'Passamdy', 'Phrygian', 'Pirahã', 'Polish', 'Popoluca', 'Portuguese', 'Potawatomi', 'Pulaar', 'Punjabi', 'Quechua', 'Quenya', 'Rapa Nui', 'Rasta', 'Rejang', 'Romani', 'Romanian', 'Roviana', 'Rotuman', 'Russian', 'Saanich', 'Saami', 'Samoan', 'Sanskrit', 'Sardinian', 'Scots', 'Serbian', 'Seri', 'Sherpa', 'Shi', 'Sina Bidoyoh', 'Shona', 'Shoshoni', 'Sindarin', 'Sinhalese', 'Slovak', 'Slovene', 'Sogdian', 'Somali', 'Sorbian', 'Spanish', 'Sranan', 'Sûdovian', 'Sumerian', 'Swabian', 'Swahili', 'Swedish', 'Swiss German', 'Tagalog', 'Tamasheq', 'Tahitian', 'Taino', 'Tajik', 'Tamazight', 'Tamil', 'Tarahumara', 'Tarok', 'Tatar', 'Telugu', 'Tetan', 'Thai', 'Tibetan', 'Tlingit', 'Tocharian', 'Tongan', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Ulwa', 'Umbrian', 'Üqoi', 'Urdu', 'Uyghur', 'Uzbek', 'Venda', 'Veps', 'Vietnamese', 'Votic', 'Wagiman', 'Walloon', 'Warlpiri', 'Welsh', 'Wolof', 'Wyandot', 'Xhosa', 'Yaka', 'Yao', 'Yemba', 'Yiddish', 'Yoruba', 'Zarma', 'Zoque', 'Zulu', 'Other'
     ];
 
     var countryList = [
-    'United States', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Artsakh', 'Australia', 'Austria', 'Azerbaijan', 'The Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Democratic Republic of the Congo', 'Cook Islands', 'Costa Rica', 'Côte d\'Ivoire', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'The Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'South Korea', 'Democratic People\'s Republic of Korea', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'The Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Northern Cyprus', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Sahrawi Arab Democratic Republic', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'São Tomé and Príncipe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'Somaliland', 'South Africa', 'South Ossetia', 'Spain', 'Sri Lanka', 'Sudan', 'South Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Transnistria', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+      'United States', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Artsakh', 'Australia', 'Austria', 'Azerbaijan', 'The Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Democratic Republic of the Congo', 'Cook Islands', 'Costa Rica', 'Côte d\'Ivoire', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'The Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'South Korea', 'Democratic People\'s Republic of Korea', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'The Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Northern Cyprus', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Sahrawi Arab Democratic Republic', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'São Tomé and Príncipe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'Somaliland', 'South Africa', 'South Ossetia', 'Spain', 'Sri Lanka', 'Sudan', 'South Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Transnistria', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
     ]
 
     var USstateList = [
-    'Alabama',
-    'Alaska',
-    'Arizona',
-    'Arkansas',
-    'California',
-    'Colorado',
-    'Connecticut',
-    'Delaware',
-    'District of Columbia',
-    'Florida',
-    'Georgia',
-    'Hawaii',
-    'Idaho',
-    'Illinois',
-    'Indiana',
-    'Iowa',
-    'Kansas',
-    'Kentucky',
-    'Louisiana',
-    'Maine',
-    'Maryland',
-    'Massachusetts',
-    'Michigan',
-    'Minnesota',
-    'Mississippi',
-    'Missouri',
-    'Montana',
-    'Nebraska',
-    'Nevada',
-    'New Hampshire',
-    'New Jersey',
-    'New Mexico',
-    'New York',
-    'North Carolina',
-    'North Dakota',
-    'Ohio',
-    'Oklahoma',
-    'Oregon',
-    'Pennsylvania',
-    'Rhode Island',
-    'South Carolina',
-    'South Dakota',
-    'Tennessee',
-    'Texas',
-    'Utah',
-    'Vermont',
-    'Virginia',
-    'Washington',
-    'West Virginia',
-    'Wisconsin',
-    'Wyoming'
+      'Alabama',
+      'Alaska',
+      'Arizona',
+      'Arkansas',
+      'California',
+      'Colorado',
+      'Connecticut',
+      'Delaware',
+      'District of Columbia',
+      'Florida',
+      'Georgia',
+      'Hawaii',
+      'Idaho',
+      'Illinois',
+      'Indiana',
+      'Iowa',
+      'Kansas',
+      'Kentucky',
+      'Louisiana',
+      'Maine',
+      'Maryland',
+      'Massachusetts',
+      'Michigan',
+      'Minnesota',
+      'Mississippi',
+      'Missouri',
+      'Montana',
+      'Nebraska',
+      'Nevada',
+      'New Hampshire',
+      'New Jersey',
+      'New Mexico',
+      'New York',
+      'North Carolina',
+      'North Dakota',
+      'Ohio',
+      'Oklahoma',
+      'Oregon',
+      'Pennsylvania',
+      'Rhode Island',
+      'South Carolina',
+      'South Dakota',
+      'Tennessee',
+      'Texas',
+      'Utah',
+      'Vermont',
+      'Virginia',
+      'Washington',
+      'West Virginia',
+      'Wisconsin',
+      'Wyoming'
     ]
 
     var surveyIntro = {
-    type: 'html-button-response',
-    stimulus: '<p align="center">Now we have a few questions about you.</p><p></p><br>',
-    choices: ['Next']
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p align="center">Now we have a few questions about you.</p><p></p><br>',
+      choices: ['Next']
     };
 
     var demographics = {
-    timeline: [
-        {
-            type: 'survey-text-number',
-            questions: [{ prompt: '<p align="center">How old are you?</p>', min_number: 18 }],
-            data: {"trialType": "age"},
-        },
-        {
-            type: 'html-button-response',
-            stimulus: '<p align="center">What is your gender?</p>',
-            prompt: '',
-            choices: ['Female', 'Male', 'Other', 'Prefer not to answer'],
-            data: {"trialType": "gender"}
-        }
-    ]
+      timeline: [
+          {
+              type: SurveyTextNumPlugin,
+              questions: [{ prompt: '<p align="center">How old are you?</p>', min_number: 18 }],
+              data: {"trialType": "age"},
+          },
+          {
+              type: jsPsychHtmlButtonResponse,
+              stimulus: '<p align="center">What is your gender?</p>',
+              prompt: '',
+              choices: ['Female', 'Male', 'Other', 'Prefer not to answer'],
+              data: {"trialType": "gender"}
+          }
+      ]
     };
 
-    var language = {
-    type: 'survey-text-dropdown',
-    questions: [
-        {
-        prompt: '<p align="center">What is your first/native language?</p>',
-        choices: langList
-        }
-    ],
-    data: {"trialType": "nativeLang"}
-    };
+    // var language = {
+    //   type: 'survey-text-dropdown',
+    //   questions: [
+    //       {
+    //       prompt: '<p align="center">What is your first/native language?</p>',
+    //       choices: langList
+    //       }
+    //   ],
+    //   data: {"trialType": "nativeLang"}
+    // };
 
     var country = {
-    type: 'survey-multi-select',
-    questions: [
-        {
-            prompt: '<p align="center">What country/countries have you lived in during the covid-19 pandemic?</p>',
-            options: countryList,
-            horizontal: true,
-            required: false,
-            name: 'country'
-        },
-    ],
-    data: { "trialType": "country"}
+      type: jsPsychSurveyMultiSelect,
+      questions: [
+          {
+              prompt: '<p align="center">What country/countries have you lived in during the covid-19 pandemic?</p>',
+              options: countryList,
+              horizontal: true,
+              required: false,
+              name: 'country'
+          },
+      ],
+      data: { "trialType": "country"}
     }
 
     var USstate = {
-    type: 'survey-multi-select',
-    questions: [
-        {
-            prompt: '<p align="center">What US states have you lived in during the covid-19 pandemic?</p>',
-            options: USstateList,
-            horizontal: true,
-            required: false,
-            name: 'state'
-        },
-    ],
-    data: { "trialType": "state"}
+      type: jsPsychSurveyMultiSelect,
+      questions: [
+          {
+              prompt: '<p align="center">What US states have you lived in during the covid-19 pandemic?</p>',
+              options: USstateList,
+              horizontal: true,
+              required: false,
+              name: 'state'
+          },
+      ],
+      data: { "trialType": "state"}
     }
 
     var USConditional = {
-    timeline: [USstate],
-    conditional_function: function(data) {
-    var response = jsPsych.data.get().filter({trial_type: 'survey-multi-select'}).values()[0].response.country;
-    if (response.includes('United States')) {
-    return true;
-    } else {
-    return false;
-    }
-    }
-    };
-
-    var journal = {
-    type: 'html-button-response',
-    stimulus: '<p align="center">Do you keep a journal or diary?</p>',
-    choices: ['Yes', 'No', 'Prefer not to say'],
-    data: { "trialType": "journal"}
-    }
-
-    var journalFreq = {
-    type: 'survey-multi-choice',
-    questions: [
-        {
-            prompt: '<p align="center">How often do you write in your journal/diary?</p>',
-            options: ['Everyday', 'A few times a week', 'Around once a week', 'Around once a month', 'Less frequently'],
-            horizontal: true,
-            required: false,
-            name: 'journalFreq'
-        },
-    ],
-    data: { "trialType": "journalFreq"}
-    }
-
-    var journalConditional = {
-    timeline: [journalFreq],
-    conditional_function: function() {
-        var button = jsPsych.data
-        .get()
-        .last(1)
-        .values()[0].response;
-        if (button == 0) {
-            return true;
+      timeline: [USstate],
+      conditional_function: function(data) {
+        var response = jsPsych.data.get().filter({trial_type: 'survey-multi-select'}).values()[0].response.country;
+        if (response.includes('United States')) {
+          return true;
         } else {
-            return false;
+          return false;
         }
-    }
+      }
     };
+
+    // Journal questions
+    var journal = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p align="center">Do you keep a journal or diary?</p>',
+        choices: ['Yes', 'No', 'Prefer not to say'],
+        data: { "trialType": "journal"}
+    }
+    var journalFollowup = {
+        timeline: [
+            {
+                type: jsPsychSurveyMultiChoice,
+                questions: [
+                    {
+                        prompt: '<p align="center">How often do you write in your journal/diary?</p>',
+                        options: ['Everyday', 'A few times a week', 'Around once a week', 'Around once a month', 'Less frequently'],
+                        horizontal: true,
+                        required: false,
+                        name: 'journalFreq'
+                    },
+                ],
+                data: { "trialType": "journalFreq"}
+            },
+            {
+                type: jsPsychSurveyMultiSelect,
+                questions: [
+                    {
+                        prompt: '<p align="center">What do you use your journal for?</p>',
+                        options: ['Planning/to-do lists', 'Reflecting on my day', 'Working through emotions', 'Organizing my thoughts', 'Recording dreams', 'Other'],
+                        horizontal: true,
+                        required: false,
+                        name: 'journalContent'
+                    },
+                ],
+                data: { "trialType": "journalContent"}
+            }
+        ]
+    }
+    var journalOther = {
+        type: jsPsychSurveyText,
+        questions: [
+            {prompt: 'What other purposes do you use your journal for?', name: 'journalOther'}
+
+        ]
+    }
+    var journalConditional = {
+        timeline: [journalFollowup],
+        conditional_function: function() {
+            var button = jsPsych.data
+            .get()
+            .last(1)
+            .values()[0].response;
+            if (button == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+    var journalContentConditional = {
+        timeline: [journalOther],
+        conditional_function: function() {
+            var selections = jsPsych.data
+            .get()
+            .last(1)
+            .values()[0].response;
+            var stringresponse = JSON.stringify(selections)
+            if (stringresponse.includes("Other")) {
+                console.log(stringresponse);
+                return true;
+            } else {
+                console.log(stringresponse);
+                return false;
+            }
+        }
+    };
+
+    // Communication experience and preference questions
+    var practice = {
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+            {
+                prompt: '<p align="center">Do you engage in any of the following practices?</p>',
+                options: ['Therapy', 'Prayer', 'Mindfulness', 'Meditation'],
+                horizontal: true,
+                required: false,
+                name: 'practice'
+            },
+        ],
+        data: { "trialType": "practice"}
+    };
+
+    var commpref = {
+        type: jsPsychRanking,
+        alternatives: ['Texts/emails/written formats', 'Phone calls/voice only', 'Video calls', 'In person'], //i
+        labels: ['Prefer a lot', 'Prefer a little', 'Dislike a little', 'Dislike a lot'], //j
+        preamble: '<p>How do you prefer to converse with others?</p>',
+        data: { "trialType": "commpref"}
+    };
+
+    // Expression questions
+    var typingComfort = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How comfortable did you feel expressing yourself openly when typing in these tasks?</p>',
+                options: ['Very comfortable', 'Somewhat comfortable', 'Somewhat uncomfortable', 'Very uncomfortable'],
+                horizontal: true,
+                required: false,
+                name: 'typingComfort'
+            },
+        ],
+        data: { "trialType": "typingComfort"}
+    };
+    var speakingComfort = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How comfortable did you feel expressing yourself openly when speaking in these tasks?</p>',
+                options: ['Very comfortable', 'Somewhat comfortable', 'Somewhat uncomfortable', 'Very uncomfortable'],
+                horizontal: true,
+                required: false,
+                name: 'speakingComfort'
+            },
+        ],
+        data: { "trialType": "speakingComfort"}
+    };
+    var overallComfort = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How comfortable were you expressing yourself overall?</p>',
+                options: ['Very comfortable', 'Somewhat comfortable', 'Somewhat uncomfortable', 'Very uncomfortable'],
+                horizontal: true,
+                required: false,
+                name: 'overallComfort'
+            },
+        ],
+        data: { "trialType": "overallComfort"}
+    };
+
+    var guiltGeneral = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">How often do you feel guilty about your thoughts?</p>',
+                options: ['Always', 'Most of the time', 'Some of the time', 'Never'],
+                horizontal: true,
+                required: false,
+                name: 'guiltGeneral'
+            },
+        ],
+        data: { "trialType": "guiltGeneral"}
+    };
+    var guiltTasks = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">Did you ever feel guilty about any thoughts you had during the task (regardless of whether you shared it or not)?</p>',
+                options: ['Yes', 'No'],
+                horizontal: true,
+                required: false,
+                name: 'guiltTasks'
+            },
+        ],
+        data: { "trialType": "guiltTasks"}
+    };
+
+    var whoTo = {
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+            {
+                prompt: '<p align="center">Who did you feel you were directing your thoughts to in your streams-of-consciousness during the tasks?</p>',
+                options: ['Self', 'The researchers', 'Others who may be nearby', 'Imaginary audience', 'Imaginary specific individual', 'A higher power',  'No one'],
+                horizontal: true,
+                required: false,
+                name: 'whoTo'
+            },
+        ],
+        data: { "trialType": "whoTo"}
+    };
+    var overheard = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">Do you believe anyone could hear you during the tasks?</p>',
+                options: ['Yes', 'No'],
+                horizontal: true,
+                required: false,
+                name: 'overheard'
+            },
+        ],
+        data: { "trialType": "overheard"}
+    };
+    var researchImpact = {
+        type: jsPsychSurveyMultiChoice,
+        questions: [
+            {
+                prompt: '<p align="center">DHow impacted, if at all, did you feel you were when expression yourself by knowing researchers may read your thoughts?</p>',
+                options: ['Very impacted', 'Somewhat impacted', 'A little impacted', 'Not impacted'],
+                horizontal: true,
+                required: false,
+                name: 'researchImpact'
+            },
+        ],
+        data: { "trialType": "researchImpact"}
+    };
+
+    // Free text experience
+    var freeField = {
+        type: jsPsychSurveyText,
+        questions: [
+            {prompt: 'Is there anything else you want to share about your experience doing these tasks?', name: 'freeField', rows: 50, columns: 100}
+        ]
+    }
 
     // Mood and personality questions
-    var social = {
-    type: 'survey-multi-choice',
-    preamble: '<p align="left">Read each following statements and select the appropriate response to indicate how accurately you feel it describes how you feel, on a scale from 1 to 6.</p><br><table align="center"><tr><th>Strongly agree</th><th>&emsp;1&emsp;</th><th>&emsp;2&emsp;</th><th>&emsp;3&emsp;</th><th>&emsp;4&emsp;</th><th>&emsp;5&emsp;</th><th>&emsp;6&emsp;</th><th>Strongly disagree</th></tr></table><br>',
-    questions: [
+    var anxietyBECK = {
+      type: jsPsychSurveyMultiChoiceC,
+      preamble: '<p align="left">Below is a list of common symptoms of anxiety. Please carefully read each item in the list. Indicate how much you have been bothered by that symptom during the past month, including today, by selecting the number below each symptom.</p><br><table align="center" width="90%" style="font-size: 0.9em"><tr><th>0</th><th>1</th><th>2</th><th>3</th></tr><tr><td>Not at all</td><td>Mildly, but it didn\'t bother me much</td><td>Moderately - it wasn\'t pleasant at times</td><td>Severely - it bothered me a lot</td></tr></table><br>',
+      questions: [
         {
-            prompt: 'I feel disconnected from the world around me.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Numbness or tingling',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC1'
+            name: 'BeckA1'
         },
         {
-            prompt: 'Even around people I know, I don\'t feel that I really belong.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Feeling hot',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC2'
+            name: 'BeckA2'
         },
         {
-            prompt: 'I feel so distant from people.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Wobbliness in legs',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC3'
+            name: 'BeckA3'
         },
         {
-            prompt: 'I have no sense of togetherness with my peers.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Unable to relax',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC4'
+            name: 'BeckA4'
         },
         {
-            prompt: 'I don\'t feel related to anyone.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Fear of worst happening',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC5'
+            name: 'BeckA5'
         },
         {
-            prompt: 'I catch myself losing all sense of connectedness with society.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Dizzy or lightheaded',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC6'
+            name: 'BeckA6'
         },
         {
-            prompt: 'Even among my friends, there is no sense of brother/sisterhood.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Heart pounding / racing',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC7'
+            name: 'BeckA7'
         },
         {
-            prompt: 'I don\'t feel I participate with anyone or any group.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Unsteady',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialC8'
+            name: 'BeckA8'
         },
         {
-            prompt: 'I feel more comfortable when someone is constantly with me.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Terrified or afraid',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA1'
+            name: 'BeckA9'
         },
         {
-            prompt: 'I\'m more at ease doing things together with other people.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Nervous',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA2'
+            name: 'BeckA10'
         },
         {
-            prompt: 'Working side by side with others is more comfortable than working alone.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Feeling of choking',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA3'
+            name: 'BeckA11'
         },
         {
-            prompt: 'My life is incomplete without a buddy beside me.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Hands trembling',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA4'
+            name: 'BeckA12'
         },
         {
-            prompt: 'It\'s hard for me to use my skills and talents without someone beside me.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Shaky / unsteady',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA5'
+            name: 'BeckA13'
         },
         {
-            prompt: 'I stick to my friends like glue.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Fear of losing control',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA6'
+            name: 'BeckA14'
         },
         {
-            prompt: 'I join groups more for the friendship than the activity itself.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Difficulty in breathing',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA7'
+            name: 'BeckA15'
         },
         {
-            prompt: 'I wish to find someone who can be with me all the time.',
-            options: ['1', '2', '3', '4', '5', '6'],
+            prompt: 'Fear of dying',
+            options: ['0', '1', '2', '3'],
             horizontal: true,
             required: false,
-            name: 'socialA8'
+            name: 'BeckA16'
+        },
+        {
+            prompt: 'Scared',
+            options: ['0', '1', '2', '3'],
+            horizontal: true,
+            required: false,
+            name: 'BeckA17'
+        },
+        {
+            prompt: 'Indigestion',
+            options: ['0', '1', '2', '3'],
+            horizontal: true,
+            required: false,
+            name: 'BeckA18'
+        },
+        {
+            prompt: 'Faint / lightheaded',
+            options: ['0', '1', '2', '3'],
+            horizontal: true,
+            required: false,
+            name: 'BeckA19'
+        },
+        {
+            prompt: 'Face flushed',
+            options: ['0', '1', '2', '3'],
+            horizontal: true,
+            required: false,
+            name: 'BeckA20'
+        },
+        {
+            prompt: 'Hot / cold sweats',
+            options: ['0', '1', '2', '3'],
+            horizontal: true,
+            required: false,
+            name: 'BeckA21'
         }
-    ],
-    data: {"trialType": "social"}
+      ],
+      data: {"trialType": "BECK_anxiety"}
     }
 
-    var cognition = {
-    type: 'survey-multi-choice',
-    preamble: '<p align="left">For each statement listed below, choose the number that indicates the extent to which you feel it is characteristic of you. For example, if the statement is not at all like you, select number 1 for \"Extremely Uncharacteristic,\" or if you really can\'t decide if the statement is or is not characteristic of you, select number 3 for \"Uncertain.\"</p>',
-    questions: [
-        {
-            prompt: 'I would prefer complex to simple problems.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition1'
-        },
-        {
-            prompt: 'I like to have the responsibility of handling a situation that requires a lot of thinking.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition2'
-        },
-        {
-            prompt: 'Thinking is not my idea of fun.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition3-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I would rather do something that requires little thought than something that is sure to challenge my thinking abilities.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition4-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I try to anticipate and avoid situations where there is likely a chance I will have to think in depth about something.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition5-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I find satisfaction in deliberating hard and for long hours.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition6'
-        },
-        {
-            prompt: 'I only think as hard as I have to.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition7-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I prefer to think about small, daily projects to long-term ones.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition8-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I like tasks that require little thought once I\'ve learned them.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition9-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'The idea of relying on thought to make my way to the top appeals to me.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition10'
-        },
-        {
-            prompt: 'I really enjoy a task that involves coming up with new solutions to problems.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition11'
-        },
-        {
-            prompt: 'Learning new ways to think doesn\'t excite me very much.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition12-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I prefer my life to be filled with puzzles that I must solve.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition13'
-        },
-        {
-            prompt: 'The notion of thinking abstractly is appealing to me.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition14'
-        },
-        {
-            prompt: 'I would prefer a task that is intellectual, difficult, and important to one that is somewhat important but does not require much thought.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition15'
-        },
-        {
-            prompt: 'I feel relief rather than satisfaction after completing a task that required a lot of mental effort.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition16-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'It\'s enough for me that something gets the job done; I don\'t care how or why it works.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition17-rc' //rc indicate reverse coded
-        },
-        {
-            prompt: 'I usually end up deliberating about issues even when they do not affect me personally.',
-            options: ['1', '2', '3', '4', '5'],
-            horizontal: true,
-            required: false,
-            name: 'cognition18'
-        }
-    ],
-    data: {"trialType": "cognition"}
+    var depressionBECK = {
+        type: jsPsychSurveyMultiChoiceC,
+        preamble: '<p align="left">This quesitionnaire consists of 20 groups of statements. Please read each group of statements carefully, and then pick out the <b>one statement</b> in each group that best describes the way you have been feeling during the <b>past two weeks, including today</b>. If several statements in the group seem to apply equally well, select the highest number for that group.<br>',
+        questions: [
+            {
+                prompt: '<b>1. Sadness</b>',
+                options: [
+                    '0 - I do not feel sad.',
+                    '1 - I feel sad much of the time.',
+                    '2 - I am sad all the time.',
+                    '3 - I am so sad or unhappy that I can\'t stand it.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'BeckD1no9'
+            },
+            {
+                prompt: '<b>2. Pessimism</b>',
+                options: [
+                    '0 - I am not discouraged about my future.',
+                    '1 - I feel more discouraged about my future than I used to be.',
+                    '2 - I do not expect things to work out for me.',
+                    '3 - I feel my future is hopeless and will only get worse.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'BeckD2no9'
+            },
+            {
+                prompt: '<b>3. Past Failure</b>',
+                options: [
+                    '0 - I do not feel like a failure.',
+                    '1 - I have failed more than I should have.',
+                    '2 - As I look back, I see a lot of failures.',
+                    '3 - I feel I am a total failure as a person.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'BeckD3no9'
+            },
+            {
+                prompt: '<b>4. Loss of Pleasure</b>',
+                options: [
+                    '0 - I get as much pleasure as I ever did from the things I enjoy.',
+                    '1 - I don\'t enjoy things as much as I used to.',
+                    '2 - I get very little pleasure from the things I used to enjoy.',
+                    '3 - I can\'t get any pleasure from the things I used to enjoy.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'BeckD4no9'
+            },
+            {
+                prompt: '<b>5. Guilty Feelings</b>',
+                options: [
+                    '0 - I don\'t feel particularly guilty.',
+                    '1 - I feel guilty over many things I have done or should have done.',
+                    '2 - I feel quite guilty most of the time.',
+                    '3 - I feel guilty all of the time.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd5no9'
+            },
+            {
+                prompt: '<b>6. Punishment Feelings</b>',
+                options: [
+                    '0 - I don\'t feel I am being punished.',
+                    '1 - I feel I may be punished.',
+                    '2 - I expect to be punished.',
+                    '3 - I feel I am being punished.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd6no9'
+            },
+            {
+                prompt: '<b>7. Self-Dislike</b>',
+                options: [
+                    '0 - I feel the same about myself as ever.',
+                    '1 - I have lost confidence in myself.',
+                    '2 - I am disappointed in myself.',
+                    '3 - I dislike myself.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd7no9'
+            },
+            {
+                prompt: '<b>8. Self-Criticalness</b>',
+                options: [
+                    '0 - I don\'t criticize or blame myself more than usual.',
+                    '1 - I am more critical of myself than I used to be.',
+                    '2 - I criticize myself for all of my faults.',
+                    '3 - I blame myself for everything bad that happens.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd8no9'
+            },
+            {
+                prompt: '<b>9. Crying</b>',
+                options: [
+                    '0 - I don\'t cry anymore than I used to.',
+                    '1 - I cry more than I used to.',
+                    '2 - I cry over every little thing.',
+                    '3 - I feel like crying, but I can\'t.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd10no9'
+            },
+            {
+                prompt: '<b>10. Agitation</b>',
+                options: [
+                    '0 - I am no more restless or wound up than usual.',
+                    '1 - I feel more restless or wound up than usual.',
+                    '2 - I am so restless or agitated that it\'s hard to stay still.',
+                    '3 - I am so restless or agitated that I hve to keep moving or doing something.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd11no9'
+            },
+            {
+                prompt: '<b>11. Loss of Interest</b>',
+                options: [
+                    '0 - I have not lost interest in other people or activities.',
+                    '1 - I am less interested in other people or things than before.',
+                    '2 - I have lost most of my interest in other people or things.',
+                    '3 - It\'s hard to get interested in anything.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd12no9'
+            },
+            {
+                prompt: '<b>12. Indecisiveness</b>',
+                options: [
+                    '0 - I make decisions about as well as ever.',
+                    '1 - I find it more difficult to make decisions than usual.',
+                    '2 - I have much greater difficulty in making decisions than I used to.',
+                    '3 - I have trouble making any decisions.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd13no9'
+            },
+            {
+                prompt: '<b>13. Worthlessness</b>',
+                options: [
+                    '0 - I do not feel I am worthless.',
+                    '1 - I don\'t consider myself as worthwhile and useful as I used to.',
+                    '2 - I feel more worthless as compared to other people.',
+                    '3 - I feel utterly worthless.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd14no9'
+            },
+            {
+                prompt: '<b>14. Loss of Energy</b>',
+                options: [
+                    '0 - I have as much energy as ever.',
+                    '1 - I have less energy than I used to have.',
+                    '2 - I don\'t have enough energy to do very much.',
+                    '3 - I don\'t have enough energy to do anything.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd15no9'
+            },
+            {
+                prompt: '<b>15. Changes in Sleeping Pattern</b>',
+                options: [
+                    '0 - I have not experienced any change in my sleeping pattern.',
+                    '1a - I sleep somewhat more than usual.',
+                    '1b - I sleep somewhat less than usual.',
+                    '2a - I sleep a lot more than usual',
+                    '2b - I sleep a lot less than usual',
+                    '3a - I sleep most of the day.',
+                    '3b - I wake up 1-2 hours early and can\'t get back to sleep.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd16no9'
+            },
+            {
+                prompt: '<b>16. Irritability</b>',
+                options: [
+                    '0 - I am no more irritable than usual.',
+                    '1 - I am more irritable than usual.',
+                    '2 - I am much more irritable than usual.',
+                    '3 - I am irritable all the time.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd17no9'
+            },
+            {
+                prompt: '<b>17. Changes in Appetite</b>',
+                options: [
+                    '0 - I have not experienced any change in my appetite.',
+                    '1a - My appetite is somewhat less than usual.',
+                    '1b - My appetite is somewhat greater than usual.',
+                    '2a - My appetite is much less than before.',
+                    '2b - My appetite is much greater than usual.',
+                    '3a - I have no appetite at all.',
+                    '3b - I crave food all the time.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd18no9'
+            },
+            {
+                prompt: '<b>18. Concentration Difficulty</b>',
+                options: [
+                    '0 - I can concentrate as well as ever.',
+                    '1 - I can\'t concentrate as well as usual.',
+                    '2 - It\'s hard to keep my mind on anything for very long.',
+                    '3 - I find I can\'t concentrate on anything.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd19no9'
+            },
+            {
+                prompt: '<b>19. Tiredness of Fatigue</b>',
+                options: [
+                    '0 - I am no more tired or fatigued than usual.',
+                    '1 - I get more tired or fatigued more easily than usual.',
+                    '2 - I am too tired or fatigued to do a lot of the things I used to do.',
+                    '3 - I am too tired or fatigued to do most of the things I used to do.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd20no9'
+            },
+            {
+                prompt: '<b>20. Loss of Interest in Sex</b>',
+                options: [
+                    '0 - I have not noticed any recent change in my interest in sex.',
+                    '1 - I am less interested in sex than I used to be.',
+                    '2 - I am much less interested in sex now.',
+                    '3 - I have lost interest in sex completely.'
+                ],
+                horizontal: true,
+                required: false,
+                name: 'Beckd21no9'
+            }
+        ],
+        data: {"trialType": "BECK_depression"}
     }
 
-    var rumination = {
-    type: 'survey-multi-choice',
-    preamble: '<p align="left">People think and do many different things when they feel depressed. Please read each of the items below and indicate whether you almost never, sometimes, often, or almost always think or do each one when you feel down, sad, or depressed. Please indicate what you generally do, not what you think you should do. Use the following scale to report your answer:</p><br><table align="center"><tr><th>Almost never</th><th>&emsp;1&emsp;</th><th>Sometimes</th><th>&emsp;2&emsp;</th><th>Often</th><th>&emsp;3&emsp;</th><th>Almost always</th><th>&emsp;4&emsp;</th></tr></table><br>',
-    questions: [
-        {
-            prompt: 'Think about how alone you feel.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination1'
-        },
-        {
-            prompt: 'Think \"I won\'t be able to do my job if I don\'t snap out of this.\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination2'
-        },
-        {
-            prompt: 'Think about your feelings of fatigue and achiness.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination3'
-        },
-        {
-            prompt: 'Think about how hard it is to concentrate',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination4'
-        },
-        {
-            prompt: 'Think \"What am I doing to deserve this?\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination5'
-        },
-        {
-            prompt: 'Think about how passive and unmotivated you feel.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination6'
-        },
-        {
-            prompt: 'Analyze recent events to try to understand why you are depressed.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination7'
-        },
-        {
-            prompt: 'Think about how you don\'t seem to feel anything anymore.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination8'
-        },
-        {
-            prompt: 'Think \"Why can\'t I get going?\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination9'
-        },
-        {
-            prompt: 'Think \"Why do I always react this way?\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination10'
-        },
-        {
-            prompt: 'Go away by yourself and think about why you feel this way.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination11'
-        },
-        {
-            prompt: 'Write down what you are thinking and analyze it.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination12'
-        },
-        {
-            prompt: 'Think about a recent situation, wishing it had gone better.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination13'
-        },
-        {
-            prompt: 'Think \"I won\'t be able to concentrate if I keep feeling this way.\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination14'
-        },
-        {
-            prompt: 'Think \"Why do I have problems other people don\'t have?\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination15'
-        },
-        {
-            prompt: 'Think \"Why can\'t I handle things better?\"',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination16'
-        },
-        {
-            prompt: 'Think about how sad you feel.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination17'
-        },
-        {
-            prompt: 'Think about all your shortcomings, failings, faults, mistakes.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination18'
-        },
-        {
-            prompt: 'Think about how you don\'t feel up to doing anything.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination19'
-        },
-        {
-            prompt: 'Analyze your personality to try to understand why you are depressed.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination20'
-        },
-        {
-            prompt: 'Go someplace alone to think about your feelings.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination21'
-        },
-        {
-            prompt: 'Think about how angry you are with yourself.',
-            options: ['1', '2', '3', '4'],
-            horizontal: true,
-            required: false,
-            name: 'rumination22'
-        }
-    ],
-    data: {"trialType": "rumination"}
-    }
+    var bigFive = {
+        type: jsPsychSurveyMultiChoiceC,
+        preamble: '<p align="left">Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please write a number next to each statement to indicate the extent to which you agree or disagree with that statement.</p>'+
+        '<p><table align="center">'+
+            '<tr>'+
+                '<th style="padding:10px">Disagree strongly</th><th style="padding:10px">Disagree a little</th><th style="padding:10px">Neither agree nor disagree</th><th style="padding:10px">Agree a little</th><th style="padding:10px">Agree strongly</th>'+
+            '</tr>'+
+            '<tr>'+
+                '<td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>'+
+            '</tr>'+
+        '</table></p>'+
+        '<p><u>I see myself as someone who...</u></p>',
+        questions: [
+            {
+                prompt: '1. Is talkative',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big1'
+            },
+            {
+                prompt: '2. Tends to find fault in others',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big2'
+            },
+            {
+                prompt: '3. Does a thorough job',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big3'
+            },
+            {
+                prompt: '4. Is depressed, blue',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big4'
+            },
+            {
+                prompt: '5. Is original, comes up with new ideas',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big5'
+            },
+            {
+                prompt: '6. Is reserved',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big6'
+            },
+            {
+                prompt: '7. Is helpful and unselfish with others',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big7'
+            },
+            {
+                prompt: '8. Can be somewhat careless',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big8'
+            },
+            {
+                prompt: '9. Is relaxed, handles stress well',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big9'
+            },
+            {
+                prompt: '10. Is curious about many different things',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big10'
+            },
+            {
+                prompt: '11. Is full of energy',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big11'
+            },
+            {
+                prompt: '12. Starts quarrels with others',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big12'
+            },
+            {
+                prompt: '13. Is a reliable worker',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big13'
+            },
+            {
+                prompt: '14. Can be tense',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big14'
+            },
+            {
+                prompt: '15. Is ingenious, a deep thinker',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big15'
+            },
+            {
+                prompt: '16. Generates a lot of enthusiasm',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big16'
+            },
+            {
+                prompt: '17. Has a forgiving nature',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big17'
+            },
+            {
+                prompt: '18. Tends to be disorganized',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big18'
+            },
+            {
+                prompt: '19. Worries a lot',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big19'
+            },
+            {
+                prompt: '20. Has an active imagination',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big20'
+            },
+            {
+                prompt: '21. Tends to be quiet',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big21'
+            },
+            {
+                prompt: '22. Is generally trusting',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big22'
+            },
+            {
+                prompt: '23. Tends to be lazy',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big23'
+            },
+            {
+                prompt: '24. Is emotionally stable, not easily upset',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big24'
+            },
+            {
+                prompt: '25. Is inventive',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big25'
+            },
+            {
+                prompt: '26. Has an assertive personality',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big26'
+            },
+            {
+                prompt: '27. Can be cold and aloof',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big27'
+            },
+            {
+                prompt: '28. Perseveres until the task is finished',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big28'
+            },
+            {
+                prompt: '29. Can be moody',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big29'
+            },
+            {
+                prompt: '30. Values artistic, aesthetic experiences',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big30'
+            },
+            {
+                prompt: '31. Is sometimes shy, inhibited',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big31'
+            },
+            {
+                prompt: '32. Is considerate and kind to almost everyone',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big32'
+            },
+            {
+                prompt: '33. Does things efficiently',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big33'
+            },
+            {
+                prompt: '34. Remains calm in tense situations',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big34'
+            },
+            {
+                prompt: '35. Prefers work that is routine',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big35'
+            },
+            {
+                prompt: '36. Is outgoing, sociable',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big36'
+            },
+            {
+                prompt: '37. Is sometimes rude to others',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big37'
+            },
+            {
+                prompt: '38. Make plans and follows through with them',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big38'
+            },
+            {
+                prompt: '39. Gets nervous easily',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big39'
+            },
+            {
+                prompt: '40. Likes to reflect, play with ideas',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big40'
+            },
+            {
+                prompt: '41. Has few artistic interests',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big41'
+            },
+            {
+                prompt: '42. Likes to cooperate with others',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big42'
+            },
+            {
+                prompt: '43. Is easily distracted',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big43'
+            },
+            {
+                prompt: '44. Is sophisticated in art, music, or literature',
+                options: ['1', '2', '3', '4', '5'],
+                horizontal: true,
+                name: 'Big44'
+            },
+        ]
+    };
+
+    var urlParam = window.location.search;
+    var userID = urlParam.replace('?id=', '');
+
+    var dataLevels = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `<p>What is your preference and comfort level for how your data from this study is used or seen?</p><p>Unless you choose to have your data deleted, results would be reported in the aggregate across many participants. In cases where you are comfortable with anyone seeing your data, we may include excerpts for demonstration sake or researchers may download it without requesting special access directly from the research team. We will not include identifiable information outside of what you may have written in your streams-of-consciousness.</p>`,
+      choices: ['Only the researchers on this project can see or use my original data', 'Researchers outside of this project\'s team can request access to my original data', 'You may add my data to an open-source database or share excerpts - anyone could potentially see it', '<span style="color:red">Please delete my data - I don\'t want anyone using or seeing it.</span>'],
+      margin_vertical: '8px'
+    };
 
     var urlParam = window.location.search;
     var userID = urlParam.replace('?id=', '');
 
     var debrief = {
-    type: 'html-button-response',
-    stimulus: `<p>Thank you for participating in this study!</p><p>In this study, we\’re interested in understanding how people think about the past, present, and future when considering the COVID-19 pandemic. We're also interested in how differences between individuals may be predictive of how they write in a stream of consciousness style format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
-    choices: ['Return to SONA for credit'],
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `<p>Thank you for participating in this study!</p><p>In this study, we\’re interested in understanding how people think about the past, present, and future when considering the COVID-19 pandemic. We're also interested in how differences between individuals may be predictive of how they write in a stream of consciousness style format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
+      choices: ['Return to SONA for credit'],
     }
 
 
     /* ~~~ END ~~~ */
 
 
-    // // Build out timeline
+    // // Build out intro and initialization timeline
     // timeline.push(
-    // welcome,
-    // // intro
+    //     welcome,
+    //     mic_permission,
+    //     microphone
     // );
 
-    // if (condition == 'PPrF') {
+    // // Prepare condition - Add a trial that has both spoken and typed simultaneous to add into randomization
+    // if (condition == 'TS') {
     //     timeline.push(
-    //         prompt_past,
-    //         prompt_future,
-    //         prompt_present,
+    //         prompt_typed,
+    //         prompt_spoken,
+    //         recorder,
+    //         // replay_spoken
     //     );
-    // } else if (condition == 'FPrP') {
+    // } else if (condition == 'ST') {
     //     timeline.push(
-    //         prompt_present,
-    //         prompt_future,
-    //         prompt_past,
+    //         prompt_spoken,
+    //         recorder,
+    //         // replay_spoken,
+    //         prompt_typed
     //     );
     // }
 
-    timeline.push(
-    // surveyIntro,
-    // demographics,
-    // language,
-    // country,
-    // USConditional,
-    // prompt_future // for testing prompt feel
-    // journal,
-    // journalConditional
-    );
+    // // Concluding questions
+    // timeline.push(
+    //     surveyIntro,
+    //     demographics,
+    //     journal,
+    //     journalConditional
+    // );
 
-    // var personalityArray = [social, cognition, rumination];
+    // var personalityArray = [depressionBECK, anxietyBECK, bigFive];
     // var personalityArrayR = jsPsych.randomization.shuffle(personalityArray);
     // timeline.push(personalityArrayR[0], personalityArrayR[1], personalityArrayR[2]);
 
+    // // End of experiment
     // timeline.push(
-    // debrief
+    //     dataLevels,
+    //     debrief
     // );
+
+    // Questions timing test timeline
+    timeline.push(
+        // hello_trial,
+        demographics,
+        // language,
+        journal,
+        journalConditional,
+        journalContentConditional,
+        practice,
+        commpref,
+        bigFive,
+        anxietyBECK,
+        depressionBECK,
+        typingComfort,
+        speakingComfort,
+        overallComfort,
+        freeField,
+        debrief
+    );
 
     // Experiment logic
     // let sona_id = jsPsych.data.urlVariables()['sona_id']
+
 
     jsPsych.run(timeline)
 	</script>

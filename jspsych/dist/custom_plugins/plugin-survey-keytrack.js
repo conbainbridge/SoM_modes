@@ -1,4 +1,4 @@
-var jsPsychSurveyText = (function (jspsych) {
+var SurveyKeytrackPlugin = (function (jspsych) {
   'use strict';
 
   const info = {
@@ -83,10 +83,10 @@ var jsPsychSurveyText = (function (jspsych) {
   /**
    * **survey-text**
    *
-   * jsPsych plugin for free text response survey questions
+   * jsPsych plugin for free text response survey questions adapted to include keytracking. Includes countdown timer.
    *
+   * @author Constance Bainbridge
    * @author Josh de Leeuw
-   * @see {@link https://www.jspsych.org/plugins/jspsych-survey-text/ survey-text plugin documentation on jspsych.org}
    */
   class SurveyKeytrackPlugin {
       constructor(jsPsych) {
@@ -122,7 +122,7 @@ var jsPsychSurveyText = (function (jspsych) {
           var min;
           var sec;
           if(trial.trial_duration >= 1000) {
-          if (trial.trial_duration >= 60000) {
+            if (trial.trial_duration >= 60000) {
               var minsetup = (trial.trial_duration/1000); // 66,000 / 1000 = 66
               min = Math.trunc((trial.trial_duration/1000)/60);
               var modulus = minsetup % 60;
@@ -130,6 +130,7 @@ var jsPsychSurveyText = (function (jspsych) {
               countdown = min + ' min ' + sec +' sec'
             } else {
                 countdown = Math.trunc(trial.trial_duration/1000)
+                console.log(trial.trial_duration)
             }
           }
           if (trial.trial_duration != null) {
