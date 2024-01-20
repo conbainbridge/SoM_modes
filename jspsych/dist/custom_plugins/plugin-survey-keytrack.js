@@ -1,239 +1,151 @@
-var SurveyKeytrackPlugin = (function (jspsych) {
+var JsPsychSurveyKeytrack = (function (jspsych) {
   'use strict';
 
   const info = {
       name: "survey-keytrack",
       parameters: {
-          questions: {
-              type: jspsych.ParameterType.COMPLEX,
-              array: true,
-              pretty_name: "Questions",
-              default: undefined,
-              nested: {
-                  /** Question prompt. */
-                  prompt: {
-                      type: jspsych.ParameterType.HTML_STRING,
-                      pretty_name: "Prompt",
-                      default: undefined,
-                  },
-                  /** Placeholder text in the response text box. */
-                  placeholder: {
-                      type: jspsych.ParameterType.STRING,
-                      pretty_name: "Placeholder",
-                      default: "",
-                  },
-                  /** The number of rows for the response text box. */
-                  rows: {
-                      type: jspsych.ParameterType.INT,
-                      pretty_name: "Rows",
-                      default: 1,
-                  },
-                  /** The number of columns for the response text box. */
-                  columns: {
-                      type: jspsych.ParameterType.INT,
-                      pretty_name: "Columns",
-                      default: 40,
-                  },
-                  /** Whether or not a response to this question must be given in order to continue. */
-                  required: {
-                      type: jspsych.ParameterType.BOOL,
-                      pretty_name: "Required",
-                      default: false,
-                  },
-                  /** Name of the question in the trial data. If no name is given, the questions are named Q0, Q1, etc. */
-                  name: {
-                      type: jspsych.ParameterType.STRING,
-                      pretty_name: "Question Name",
-                      default: "",
-                  },
-              },
-          },
-          /** If true, the order of the questions in the 'questions' array will be randomized. */
-          randomize_question_order: {
-              type: jspsych.ParameterType.BOOL,
-              pretty_name: "Randomize Question Order",
-              default: false,
-          },
-          /** HTML-formatted string to display at top of the page above all of the questions. */
-          preamble: {
+          prompt: {
               type: jspsych.ParameterType.HTML_STRING,
-              pretty_name: "Preamble",
-              default: null,
-          },
-          /** Label of the button to submit responses. */
-          button_label: {
-              type: jspsych.ParameterType.STRING,
-              pretty_name: "Button label",
-              default: "Continue",
-          },
-          /** Setting this to true will enable browser auto-complete or auto-fill for the form. */
-          autocomplete: {
-              type: jspsych.ParameterType.BOOL,
-              pretty_name: "Allow autocomplete",
-              default: false,
-          },
-          trial_duration: {
+              pretty_name: "Prompt",
+              default: undefined,
+            },
+            /** Placeholder text in the response text box. */
+            placeholder: {
+                type: jspsych.ParameterType.STRING,
+                pretty_name: "Placeholder",
+                default: "",
+            },
+            /** The number of rows for the response text box. */
+            rows: {
+                type: jspsych.ParameterType.INT,
+                pretty_name: "Rows",
+                default: 1,
+            },
+            /** The number of columns for the response text box. */
+            columns: {
+                type: jspsych.ParameterType.INT,
+                pretty_name: "Columns",
+                default: 40,
+            },
+            /** Whether or not a response to this question must be given in order to continue. */
+            required: {
+                type: jspsych.ParameterType.BOOL,
+                pretty_name: "Required",
+                default: false,
+            },
+            countdown: {
+                type: jspsych.ParameterType.BOOL,
+                default: true,
+            },
+            show_done_button: {
+                type: jspsych.ParameterType.BOOL,
+                default: false,
+            },
+            /** Label of the button to submit responses. */
+            button_label: {
+                type: jspsych.ParameterType.STRING,
+                pretty_name: "Button label",
+                default: "Continue",
+            },
+            trial_duration: {
             type: jspsych.ParameterType.INT,
             pretty_name: 'Trial duration',
             default: null,
             description: 'The maximum duration to wait for a response.'
-          },
-      },
-  };
-  /**
-   * **survey-text**
-   *
-   * jsPsych plugin for free text response survey questions adapted to include keytracking. Includes countdown timer.
-   *
-   * @author Constance Bainbridge
-   * @author Josh de Leeuw
-   */
-  class SurveyKeytrackPlugin {
-      constructor(jsPsych) {
-          this.jsPsych = jsPsych;
-      }
-      trial(display_element, trial) {
-          for (var i = 0; i < trial.questions.length; i++) {
-              if (typeof trial.questions[i].rows == "undefined") {
-                  trial.questions[i].rows = 1;
-              }
-          }
-          for (var i = 0; i < trial.questions.length; i++) {
-              if (typeof trial.questions[i].columns == "undefined") {
-                  trial.questions[i].columns = 40;
-              }
-          }
-          for (var i = 0; i < trial.questions.length; i++) {
-              if (typeof trial.questions[i].value == "undefined") {
-                  trial.questions[i].value = "";
-              }
-          }
-          var html = "";
-          // show preamble text
-          if (trial.preamble !== null) {
-              html +=
-                  '<div id="jspsych-survey-text-preamble" class="jspsych-survey-text-preamble">' +
-                      trial.preamble +
-                      "</div>";
-          }
-
-          // Initialize countdown
-          var countdown;
-          var min;
-          var sec;
-          if(trial.trial_duration >= 1000) {
-            if (trial.trial_duration >= 60000) {
-              var minsetup = (trial.trial_duration/1000); // 66,000 / 1000 = 66
-              min = Math.trunc((trial.trial_duration/1000)/60);
-              var modulus = minsetup % 60;
-              sec = modulus
-              countdown = min + ' min ' + sec +' sec'
-            } else {
-                countdown = Math.trunc(trial.trial_duration/1000)
-                console.log(trial.trial_duration)
-            }
-          }
-          if (trial.trial_duration != null) {
-              html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-survey-text-countdown" size=14>'+countdown+'</div></b></div>';
-          }
-
-          // start form
-          if (trial.autocomplete) {
-              html += '<form id="jspsych-survey-text-form">';
-          }
-          else {
-              html += '<form id="jspsych-survey-text-form" autocomplete="off">';
-          }
-          // generate question order
-          var question_order = [];
-          for (var i = 0; i < trial.questions.length; i++) {
-              question_order.push(i);
-          }
-          if (trial.randomize_question_order) {
-              question_order = this.jsPsych.randomization.shuffle(question_order);
-          }
-          // add questions
-          for (var i = 0; i < trial.questions.length; i++) {
-              var question = trial.questions[question_order[i]];
-              var question_index = question_order[i];
-              html +=
-                  '<div id="jspsych-survey-text-' +
-                      question_index +
-                      '" class="jspsych-survey-text-question" style="margin: 2em 0em;">';
-              html += '<p class="jspsych-survey-text">' + question.prompt + "</p>";
-              var autofocus = i == 0 ? "autofocus" : "";
-              var req = question.required ? "required" : "";
-              if (question.rows == 1) {
-                  html +=
-                      '<input type="text" id="input-' +
-                          question_index +
-                          '"  name="#jspsych-survey-text-response-' +
-                          question_index +
-                          '" data-name="' +
-                          question.name +
-                          '" size="' +
-                          question.columns +
-                          '" ' +
-                          autofocus +
-                          " " +
-                          req +
-                          ' placeholder="' +
-                          question.placeholder +
-                          '"></input>';
-              }
-              else {
-                  html +=
-                      '<textarea id="input-' +
-                          question_index +
-                          '" name="#jspsych-survey-text-response-' +
-                          question_index +
-                          '" data-name="' +
-                          question.name +
-                          '" cols="' +
-                          question.columns +
-                          '" rows="' +
-                          question.rows +
-                          '" ' +
-                          autofocus +
-                          " " +
-                          req +
-                          ' placeholder="' +
-                          question.placeholder +
-                          '"></textarea>';
-              }
-              html += "</div>";
-          }
-          // add submit button
-          html +=
-              '<input type="submit" id="jspsych-survey-text-next" class="jspsych-btn jspsych-survey-text" value="' +
-                  trial.button_label +
-                  '"></input>';
-          html += "</form>";
-          display_element.innerHTML = html;
-
-            // Countdown
-            var textElement = document.getElementById('jspsych-survey-text-countdown');
-            function myTimer () {
-            if (sec > 0) {
-                if (sec == 1) {
-                sec = sec + 60
-                countdown = min + ' min 0 sec'
-                min = min - 1;
-                textElement.innerHTML = countdown;
+            },
+        },
+    };
+    /**
+     * **survey-text**
+     *
+     * jsPsych plugin for free text response survey questions adapted to include keytracking. Includes countdown timer.
+     *
+     * @author Constance Bainbridge
+     * @author Josh de Leeuw
+     */
+    class SurveyKeytrackPlugin {
+        constructor(jsPsych) {
+            this.jsPsych = jsPsych;
+            this.rt = null;
+            this.keypresses = [];
+        }
+        trial(display_element, trial) {
+            let html = "";
+            
+            //Initialize countdown
+            if (trial.countdown) {
+                var countdown;
+                var min;
+                var sec;
+                if(trial.trial_duration >= 1000) {
+                    if (trial.trial_duration >= 60000) {
+                        var minsetup = (trial.trial_duration/1000); // 66,000 / 1000 = 66
+                        min = Math.trunc((trial.trial_duration/1000)/60);
+                        var modulus = minsetup % 60;
+                        sec = modulus
+                        countdown = min + ' min ' + sec +' sec'
+                        html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-html-survey-keytrack-countdown" size=14>'+countdown+'</div></b></div>';
+                    } else {
+                        countdown = Math.trunc(trial.trial_duration/1000)
+                        countdown = countdown +' sec'
+                        html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-html-survey-keytrack-countdown" size=14>'+countdown+'</div></b></div>';
+                    }
                 } else {
-                countdown = min + ' min ' + (sec-1) +' sec'
-                textElement.innerHTML = countdown;
+                    console.log("Trial duration is too short for countdown timer.")
                 }
-                if (--sec < 0 && min < 1) {
-                console.log('trigger')
-                sec = 0;
-                }
-            } else {
-                min = min - 1;
-                sec = sec + 59
-                countdown = min + ' min ' + sec +' sec'
-                textElement.innerHTML = countdown;
             }
+            // start form
+            html += '<form id="jspsych-html-survey-keytrack-form" autocomplete="off">'
+            html += '<div id="jspsych-html-survey-keytrack-form" class="jspsych-html-survey-keytrack-question" style="margin: 2em 0em;">';
+            html += '<p class="jspsych-html-survey-keytrack">' + trial.prompt + "</p>";
+            // var autofocus = i == 0 ? "autofocus" : "";
+            var req = trial.required ? "required" : "";
+
+            html += '<textarea id="input-text-trial" name="#jspsych-html-survey-keytrack-response" cols="' + trial.columns +
+                '" rows="' + trial.rows + '" ' +
+                // autofocus + 
+                " " + req +
+                ' placeholder="' + trial.placeholder +
+            '"></textarea>';
+            html += "</div>";
+            if (trial.show_done_button) {
+                html += `<p><button class="jspsych-btn" id="finish-trial">${trial.button_label}</button></p>`;
+            }
+            display_element.innerHTML = html;
+
+            // Start countdown
+            var textElement = document.getElementById('jspsych-html-survey-keytrack-countdown');
+            var minsetup = (trial.trial_duration/1000); // 66,000 / 1000 = 66
+            min = Math.trunc((trial.trial_duration/1000)/60);
+            var modulus = minsetup % 60;
+            sec = modulus
+            console.log(textElement.innerHTML)
+            function myTimer () {
+                if (sec > 0) {
+                    if (sec == 1) {
+                        sec = sec + 60;
+                        countdown = min + ' min 0 sec';
+                        min = min - 1;
+                        textElement.innerHTML = countdown;
+                    } else {
+                        if (min == 0) {
+                            countdown = (sec-1) +' sec';
+                            textElement.innerHTML = countdown;
+                        } else {
+                            countdown = min + ' min '+ (sec-1) +' sec';
+                            textElement.innerHTML = countdown;
+                        }
+                    }
+                    if (--sec < 0 && min < 1) {
+                        console.log('trigger')
+                        sec = 0;
+                    }
+                } else {
+                    min = min - 1;
+                    sec = sec + 59
+                    countdown = min + ' min ' + sec +' sec'
+                    textElement.innerHTML = countdown;
+                }
             }
             var timerInterval
             function myStopFunction() {
@@ -242,151 +154,51 @@ var SurveyKeytrackPlugin = (function (jspsych) {
             // Start Countdown
             // (enabled by default)
             if (trial.trial_duration != null) {
-            timerInterval = setInterval(myTimer, 1000);
+                timerInterval = setInterval(myTimer, 1000);
             }
-
 
             // Save all keys
             var keypresses = [];
             document.onkeydown = function (e) {
-            var time = e.timeStamp;
-            var keydata = {
-                "key": e.key,
-                "key_code": e.code,
-                "key_time": time
-            };
-            keypresses.push(keydata)
+                var time = e.timeStamp;
+                var keydata = {
+                    "key": e.key,
+                    "key_code": e.code,
+                    "key_time": time
+                };
+                keypresses.push(keydata)
+            }
+            this.keypresses = keypresses;
+
+            const endTrial = () => {
+                // kill any remaining setTimeout handlers
+                this.jsPsych.pluginAPI.clearAllTimeouts();
+                // gather the data to store for the trial
+                var q_element = document.querySelector("textarea, input");
+                var text_response = q_element.value;
+                // Object.assign(text_response, val);
+    
+                var trial_data = {
+                    // rt: this.rt,
+                    stimulus: trial.prompt,
+                    text_response: text_response,
+                    key_tracking: this.keypresses
+                };
+                // clear the display
+                display_element.innerHTML = "";
+                // move on to the next trial
+                this.jsPsych.finishTrial(trial_data);
             }
 
             // end trial if time limit is set
             if (trial.trial_duration !== null) {
-            jsPsych.pluginAPI.setTimeout(function () {
-                end_trial();
-            }, trial.trial_duration);
+                this.jsPsych.pluginAPI.setTimeout(endTrial, trial.trial_duration);
             }
-
-            // end trial if duration is set
-            function end_trial() {
-            myStopFunction()
-            // measure response time
-            var endTime = performance.now();
-            var response_time = endTime - startTime;
-
-            // create object to hold responses
-            var question_data = {};
-
-            for(var index=0; index < trial.questions.length; index++){
-                var id = "Q" + index;
-                var q_element = document.querySelector('#jspsych-survey-text-'+index).querySelector('textarea, input');
-                var val = q_element.value;
-                var name = q_element.attributes['data-name'].value;
-                if(name == ''){
-                name = id;
-                }
-                var obje = {};
-                obje[name] = val;
-                Object.assign(question_data, obje);
-            }
-            // save data
-            var trialdata = {
-                "rt": response_time,
-                "responses": JSON.stringify(question_data),
-                "key_tracking": keypresses
-            };
-
-            display_element.innerHTML = '';
-
-            // next trial
-            jsPsych.finishTrial(trialdata);
-            }
-
-
-          // backup in case autofocus doesn't work
-          display_element.querySelector("#input-" + question_order[0]).focus();
-          display_element.querySelector("#jspsych-survey-text-form").addEventListener("submit", (e) => {
-              e.preventDefault();
-              // measure response time
-              var endTime = performance.now();
-              var response_time = Math.round(endTime - startTime);
-              // create object to hold responses
-              var question_data = {};
-              for (var index = 0; index < trial.questions.length; index++) {
-                  var id = "Q" + index;
-                  var q_element = document
-                      .querySelector("#jspsych-survey-text-" + index)
-                      .querySelector("textarea, input");
-                  var val = q_element.value;
-                  var name = q_element.attributes["data-name"].value;
-                  if (name == "") {
-                      name = id;
-                  }
-                  var obje = {};
-                  obje[name] = val;
-                  Object.assign(question_data, obje);
-              }
-              // save data
-              var trialdata = {
-                  rt: response_time,
-                  response: question_data,
-                  key_tracking: keypresses
-              };
-              display_element.innerHTML = "";
-              // next trial
-              this.jsPsych.finishTrial(trialdata);
-          });
-          var startTime = performance.now();
-      }
-      simulate(trial, simulation_mode, simulation_options, load_callback) {
-          if (simulation_mode == "data-only") {
-              load_callback();
-              this.simulate_data_only(trial, simulation_options);
-          }
-          if (simulation_mode == "visual") {
-              this.simulate_visual(trial, simulation_options, load_callback);
-          }
-      }
-      create_simulation_data(trial, simulation_options) {
-          const question_data = {};
-          let rt = 1000;
-          for (const q of trial.questions) {
-              const name = q.name ? q.name : `Q${trial.questions.indexOf(q)}`;
-              const ans_words = q.rows == 1
-                  ? this.jsPsych.randomization.sampleExponential(0.25)
-                  : this.jsPsych.randomization.randomInt(1, 10) * q.rows;
-              question_data[name] = this.jsPsych.randomization.randomWords({
-                  exactly: ans_words,
-                  join: " ",
-              });
-              rt += this.jsPsych.randomization.sampleExGaussian(2000, 400, 0.004, true);
-          }
-          const default_data = {
-              response: question_data,
-              rt: rt,
-          };
-          const data = this.jsPsych.pluginAPI.mergeSimulationData(default_data, simulation_options);
-          this.jsPsych.pluginAPI.ensureSimulationDataConsistency(trial, data);
-          return data;
-      }
-      simulate_data_only(trial, simulation_options) {
-          const data = this.create_simulation_data(trial, simulation_options);
-          this.jsPsych.finishTrial(data);
-      }
-      simulate_visual(trial, simulation_options, load_callback) {
-          const data = this.create_simulation_data(trial, simulation_options);
-          const display_element = this.jsPsych.getDisplayElement();
-          this.trial(display_element, trial);
-          load_callback();
-          const answers = Object.entries(data.response).map((x) => {
-              return x[1];
-          });
-          for (let i = 0; i < answers.length; i++) {
-              this.jsPsych.pluginAPI.fillTextInput(display_element.querySelector(`#input-${i}`), answers[i], ((data.rt - 1000) / answers.length) * (i + 1));
-          }
-          this.jsPsych.pluginAPI.clickTarget(display_element.querySelector("#jspsych-survey-text-next"), data.rt);
-      }
-  }
-  SurveyKeytrackPlugin.info = info;
-
-  return SurveyKeytrackPlugin;
-
-})(jsPsychModule);
+        }
+    }
+    SurveyKeytrackPlugin.info = info;
+  
+    return SurveyKeytrackPlugin;
+  
+  })(jsPsychModule);
+  

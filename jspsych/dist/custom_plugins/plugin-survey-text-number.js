@@ -159,18 +159,18 @@ var SurveyTextNumPlugin = (function (jspsych) {
             "responses": JSON.stringify(question_data)
           };
 
-      if (val != "-") {
-          display_element.innerHTML = '';
-          // next trial
-          jsPsych.finishTrial(trialdata);
-      } if (val == "-") {
-          if (trial.alert_text) {
-            alert(trial.alert_text);
-          } else {
-            alert('Please select your age from the dropdown menu')
-          }
-        }
-    });
+          if (val != "-") {
+              display_element.innerHTML = '';
+              // next trial
+              jsPsych.finishTrial(trialdata);
+          } if (val == "-") {
+              if (trial.alert_text) {
+                alert(trial.alert_text);
+              } else {
+                alert('Please select your age from the dropdown menu')
+              }
+            }
+        });
 
         var startTime = (new Date()).getTime();
       };

@@ -10,6 +10,8 @@
     <script src="./jspsych/dist/custom_plugins/plugin-survey-multi-choice-center.js"></script>
     <script src="./jspsych/dist/custom_plugins/plugin-ranking.js"></script>
     <script src="./jspsych/dist/custom_plugins/plugin-survey-text-number.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-survey-text-dropdown.js"></script>
+    <script src="./jspsych/dist/custom_plugins/plugin-html-audio-countdown.js"></script>
 
     <script src="./jspsych/dist/plugin-html-keyboard-response.js"></script>
     <script src="./jspsych/dist/plugin-html-button-response.js"></script>
@@ -26,6 +28,8 @@
   <body></body>
 
 <script>
+    /* ~~~ INITIALIZATION ~~~  */
+    /* Server-based audio file saving */
     function downloadBlob(blob, filename) {
         // Create a temporary download link
         var link = document.createElement('a');
@@ -36,11 +40,10 @@
         link.click();
         document.body.removeChild(link);
     }
-
     function downloadAudio(jsPsychData) {
         const trials = jsPsychData.trials;
         trials
-            .filter(trial => trial.trial_type == "html-audio-response")
+            .filter(trial => trial.trial_type == "html-audio-countdown" || trial.trial_type == "audio-keytrack")
             .forEach(atrial => {
                 const base64AudioStr = atrial.response;
                 const binaryData = window.atob(base64AudioStr);
@@ -55,33 +58,56 @@
             });
     }
 
-    // Initialize JsPsych
+    /* Initialize JsPsych */
     var jsPsych = initJsPsych({
-    use_webaudio: false,
-    on_finish: function(){
-        jsPsych.data.displayData();
-        downloadAudio(jsPsych.data.get());
-    }
+        use_webaudio: false,
+        on_finish: function(){
+            jsPsych.data.get().localSave('csv','mydata.csv');
+            jsPsych.data.displayData();
+            // downloadAudio(jsPsych.data.get());
+        }
     });
 
     var timeline = [];
-    var microphone = {
-        type: jsPsychInitializeMicrophone
-    };
 
-    const hello_trial = {
+
+    //
+    ///
+    ////
+    /////
+    /*~~~ SET CONDITION HERE ~~~*/
+    /* Prepare condition manually */
+    var condition = 'SB';
+
+    /* Prepare condition randomly */
+    // var condArray = ['TS', 'ST', 'TB', 'SB'];
+    // var randomCond = jsPsych.randomization.shuffle(condArray);
+    // var condition = randomCond[0];
+
+    /* Initialize a non-used condition variable if testing a single prompt - build timeline at bottom */
+    // var condition;
+    /////
+    ////
+    ///
+    //
+
+    /*~~~ RESEARCHER SET-UP TRIALS ~~~*/
+    var hello_trial = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: 'Hello world!'
+      stimulus: 'The first few pages will initialize the microphone - please be sure to have the researcher with you to handle this part!',
     }
     timeline.push(hello_trial)
 
-    // Initialize randomized condition
-    var condArray = ['PPrF', 'FPrP'];
-    var randomCond = jsPsych.randomization.shuffle(condArray);
-    var condition = randomCond[0]
-
+    var mic_permission = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>In order to complete this study, you will need to give access to the microphone on your device.</p>',
+        choices: ['Grant access']
+    };
+    var microphone = {
+        type: jsPsychInitializeMicrophone
+    };
+ 
     /* ~~~ CONSENT ~~~ */
-    // EDIT THIS! Include inline form with the proper study info sheet
     var welcome = {
         type: jsPsychHtmlButtonResponse,
         button_html: '<button class="jspsych-btn" style="margin-bottom: 10px">%choice%</button>',
@@ -99,23 +125,24 @@
         '<li align="left">Your decision will not be held against you.</li>'+
         '<li align="left">You can ask all the questions you want before you decide.</li></ul></p>'+
         '<p align="left"><b>WHY IS THIS RESEARCH BEING DONE?</b></p>'+
-        '<p align="left">The goal of this study is to explore your thoughts, feelings, and experiences using a few prompts in a stream of consciousness writing activity. This website will capture a snapshot of your thought process as you’re typing.</p>'+
+        '<p align="left">The goal of this study is to explore your thoughts, feelings, and experiences using a few prompts in a stream of consciousness paradigm. This website will capture a snapshot of your thought process as you’re typing and speaking.</p>'+
         '<p align="left"><b>HOW LONG WILL THE RESEARCH LAST AND WHAT WILL I NEED TO DO?</b></p>'+
-        '<p align="left">Participation will take a total of about 60 minutes and you will be awarded 1 course credit. Partial credit may be awarded if you have completed at least one writing prompt.</p>'+
+        '<p align="left">Participation will take a total of about 60 minutes and you will be awarded 1 course credit. If you wish to quit the study early or refrain from participating, you will still receive the full credit.</p>'+
         '<p align="left">If you volunteer to participate in this study, the researcher will ask you to do the following:</p>'+
-        '<p align="left"><ul><li align="left">Type out your thoughts, feelings, and experiences in three stream of consciousness style typing tasks.</li>'+
-        '<li align="left">Answer a few questions about yourself, including questions about your demographics and surveys on a few personality traits.</li>'+
-        '<li align="left">The entire study will take place online in this interface, and there will be a link at the end to return to SONA to automatically credit your account with course credit for study completion.</li></ul>'+
+        '<p align="left"><ul><li align="left">•	Type out and speak aloud your thoughts, feelings, and experiences in three stream of consciousness style tasks.</li>'+
+        '<li align="left">Answer a few questions about yourself, including questions about your demographics and surveys on a few personality traits and mental health traits.</li>'+
+        '<li align="left">The entire study will take place on this computer in this interface.</li>'+
+        '<li align="left">•	We will be able to credit you through SONA when you finish or quit the study.</li></ul>'+
         '<p align="left"><b>ARE THERE ANY RISKS IF I PARTICIPATE?</b></p>'+
-        '<p align="left">No potential risks or direct discomforts are anticipated. Because you may write whatever you feel in the study prompts, you may experience some discomfort depending on the topics you explore in your writing.</p>'+
+        '<p align="left">No potential risks or direct discomforts are anticipated. Because you may share whatever you feel in the study prompts, you may experience some discomfort depending on the topics you explore in your writing/speaking.</p>'+
         '<p align="left"><b>ARE THERE ANY BENEFITS IF I PARTICIPATE?</b></p>'+
         '<p align="left">You will not directly benefit from your participation in the research.</p>'+
-        '<p align="left">The results of the research may help us to better understand the thoughts, feelings, and experiences people choose to write about under a stream of consciousness format.</p>'+
-        '<p align="left">If you choose not to participate, you may exit out of the study at any point by closing the webpage. Your alternative to participating in this research study is to not participate.</p>'+
+        '<p align="left">The results of the research may help us to better understand the thoughts, feelings, and experiences people choose to share under a stream of consciousness format.</p>'+
+        '<p align="left">If you choose not to participate, you may exit out of the study at any point. Your alternative to participating in this research study is to not participate.</p>'+
         '<p align="left"><b>HOW WILL INFORMATION ABOUT ME AND MY PARTICIPATION BE KEPT CONFIDENTIAL?</b><p>'+
         '<p align="left">The researchers will do their best to make sure that your private information is kept confidential. Information about you will be handled as confidentially as possible, but participating in research may involve a loss of privacy and the potential for a breach in confidentiality. Study data will be physically and electronically secured.  As with any use of electronic means to store data, there is a risk of breach of data security.</p>'+
-        '<p align="left"><b>Use of personal information that can identify you:</b><br />Personal information will be separated from your responses. Participant data will be analyzed altogether, so your writing will not be published or shared publicly on its own, in case there is identifying information in the text.'+
-        '<p align="left"><b>How information about you will be stored:</b><br />Data will be locally stored on the researchers\' computers and separated from identifying information. The filenames will not have identifying information in them. Data will be analyzed all together, such that data will not be linked on the individual level.</p>'+
+        '<p align="left"><b>Use of personal information that can identify you:</b><br />Personal information will be separated from your responses. As a default, data will be analyzed all together across participants, such that data will not be linked on the individual level. You will have the opportunity to elect if the thoughts you share can be publicly available in their original form, shared only with other researchers, kept within the research team, or deleted.'+
+        '<p align="left"><b>How information about you will be stored:</b><br />Data will be locally stored on the researchers\' computers and separated from identifying information. The filenames will not have identifying information in them. Towards the end of the study, you will have the opportunity to note if you are comfortable with your original data being shared publicly – however, your name or identifying information will still not be linked to your data in this case, unless you disclose it directly in your reports of your thoughts (and we discourage this). As such, we recommend you refrain from mentioning full names or any other identifiable information when you share your thoughts in response to the prompts you will be seeing. You will also have the opportunity to request for your data to be deleted at the end of the study if you prefer.</p>'+
         '<p align="left"><b>People and agencies that will have access to your information:</b><br />The research team and authorized UCLA personnel may have access to study data and records to monitor the study.  Research records provided to authorized, non-UCLA personnel will not contain identifiable information about you. Publications and/or presentations that result from this study will not identify you by name.</p>'+
         '<p align="left">Employees of the University may have access to identifiable information as part of routine processing of your information, such as lab work or processing credits. However, University employees are bound by strict rules of confidentiality.</p>'+
         '<p align="left"><b>How long information from the study will be kept:</b></p>'+
@@ -136,70 +163,89 @@
     };
 
     /* ~~~ TRIALS ~~~ */
-    // Intro
+    /* Intro */
     var intro = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>In this task, you will be sharing your thoughts as they flow out in a stream of consciousness - whatever comes to mind.</p><p><b>Please write as though you were thinking aloud - don\'t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</b></p><p>You will have 10 minutes per prompt to share as much as you want.</p>'+
+        stimulus: '<p>In this task, you will be sharing your thoughts as they flow out in a stream of consciousness - whatever comes to mind.</p><p><b>Please share as though you were thinking aloud - don\'t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</b></p><p>You will have 10 minutes per prompt to share as much as you want, and will be completing two total stream-of-consciousness prompts.</p>'+
         '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
         choices: ['Begin']
-    };
-
-    var mic_permission = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>In order to complete this study, you will need to give access to the microphone on your device.</p>',
-        choices: ['Grant access']
     };
 
     var prompt_typed = {
         timeline: [
             {
                 type: jsPsychHtmlButtonResponse,
-                stimulus: '<p>You will be <b>typing</b> your thoughts as they flow out in a stream-of-consciousness. Write as though you were thinking aloud in free form. Don’t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</p>'+
-                '<p>You will be given a space to type out your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop typing unless your thoughts have stopped flowing.</p>',
+                stimulus: '<p>You will be <b>typing</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+                '<p>You will be given a space to type out your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop sharing unless your thoughts have stopped flowing.</p>',
                 prompt: '',
                 choices: ['Begin']
             },
             {
-                type: jsPsychSurveyText,
-                questions: [{
-                    prompt: '<p>You will be <b>typing</b> your thoughts as they flow out in a stream-of-consciousness. Write as though you were thinking aloud in free form. Don’t worry about being grammatically correct or writing in complete sentences unless it feels natural to your thought process.</p>'+
-                    '<p>You will be given a space to type out your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop typing unless your thoughts have stopped flowing.</p>'+
-                    '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
-                    rows: 50, columns: 100
-                }],
-                button_label: 'Next'
+                type: JsPsychSurveyKeytrack,
+                prompt: '<p>Please <b>type</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+                '<p>Try not to stop sharing unless your thoughts have stopped flowing.</p>'+
+                '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+                rows: 50,
+                columns: 100,
+                data: {"trialType": "typed", "condition": condition},
+                // trial_duration: 10000 // For testing only
+                trial_duration: 600000
             }
-        ],
-        data: {"trialType": "present", "condition": condition}
-        // trial_duration: '600000'
+        ]
     };
-    // timeline.push(prompt_typed)
 
     var prompt_spoken = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>You will be <b>speaking</b> your thoughts as they flow out in a stream-of-consciousness. Speak as though you were thinking aloud in free form. Don’t worry about being grammatically correct or speaking in complete sentences unless it feels natural to your thought process.</p>'+
-        '<p>You will be see an audio recorder on the next page to share your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop speaking unless your thoughts have stopped flowing.</p>',
+        stimulus: '<p>You will be <b>speaking</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+        '<p>Your audio will be recorderded on the next page to share your thoughts. A timer at the top of the screen will let you know how much time you have left. Try not to stop sharing unless your thoughts have stopped flowing.</p>',
         prompt: '',
         choices: ['Record']
     };
-
     var recorder = {
-        type: jsPsychHtmlAudioResponse,
-        stimulus: '<p>Recording now...</p>',
-        recording_duration: 10000,
-        save_audio_url: true
+        // type: jsPsychHtmlAudioResponse,
+        type: jsPsychHtmlAudioCountdown,
+        stimulus: '<p style="color:red;">Recording now...</p>'+
+        '<p>Please <b>speak</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+        '<p>Try not to stop sharing unless your thoughts have stopped flowing.</p>'+
+        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+        recording_duration: 600000,
+        // recording_duration: 10000, // For testing only
+        save_audio_url: true,
+        data: {"trialType": "spoken", "condition": condition}
     }
 
-    // Figure out how to save the file locally, how to decode base64 url into a file that can be decoded, or an actual audio file
-    var replay_spoken = {
-        type: jsPsychAudioButtonResponse,
-            stimulus: ()=>{
-                var recording = jsPsych.data.get().last(1).values()[0].audio_url;
-                console.log(recording)
-                return jsPsych.data.get().last(1).values()[0].audio_url;
-            },
-            prompt: '<p>How does it sound?.</p>',
-            choices: ['Meow', 'Woof'],
+    /* Option to add in replay for testing */
+    // var replay_spoken = {
+    //     type: jsPsychAudioButtonResponse,
+    //         stimulus: ()=>{
+    //             var recording = jsPsych.data.get().last(1).values()[0].audio_url;
+    //             console.log(recording)
+    //             return jsPsych.data.get().last(1).values()[0].audio_url;
+    //         },
+    //         prompt: '<p>How does it sound?.</p>',
+    //         choices: ['Meow', 'Woof'],
+    // }
+
+    var prompt_both = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>You will be <b>speaking while typing</b> your thoughts as they flow out in a stream-of-consciousness. Share your thoughts as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+        '<p>You will see a text field on the next page to share your thoughts, and audio will be simultaneously recorded. A timer at the top of the screen will let you know how much time you have left. Try not to stop sharing unless your thoughts have stopped flowing.</p>',
+        prompt: '',
+        choices: ['Record']
+    };
+    var recorderText = {
+        type: JsPsychAudioKeytrack,
+        stimulus: '<p style="color:red;">Recording now...</p>',
+        prompt: '<p>Please <b>speak and type</b> your thoughts as they flow out in a stream-of-consciousness. Share as though you were thinking aloud in free form. Don’t worry about being grammatically correct or using complete sentences unless it feels natural to your thought process.</p>'+
+        '<p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>',
+        rows: 50, columns: 100,
+        trial_duration: 600000,
+        recording_duration: 600000,
+        // trial_duration: 10000, // For testing only
+        // recording_duration: 10000, // For testing only
+        save_audio_url: true,
+        show_done_button: false,
+        data: {"trialType": "both", "condition": condition}
     }
 
     /* ~~~ SURVEY ~~~ */
@@ -207,64 +253,6 @@
     var langList = [
       'English', 'Abenaki', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Ainu', 'Aklanon', 'Albanian', 'Algerian', 'American Sign Language', 'Apache', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Avestan', 'Ayapathu', 'Aymara', 'Azeri', 'Balinese', 'Bamwe', 'Bantu', 'Basa', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Berber', 'Betawi', 'Bicol', 'Bisaya', 'Bobangi', 'Bosnian', 'Brahui', 'Breton', 'Butuanon', 'Bukusu', 'Bulgarian', 'Burmese', 'Carib', 'Catalan', 'Catawba', 'Cayuga', 'Cebuano', 'Chamorro', 'Chechen', 'Cherokee', 'Chewa', 'Cheyenne', 'Chickasaw', 'Chinese/Cantonese/Yue', 'Chinese/Danzhou', 'Chinese/Gan', 'Chinese/Hakka', 'Chinese/Hokkien', 'Chinese/Mandarin', 'Chinese/Min Bei', 'Chinese/Min Dong', 'Chinese/Min Zhong', 'Chinese/Pu Xian', 'Chinese/Qiong Wen', 'Chinese/Shao Jiang', 'Chinese/Shaozhou Tuhua', 'Chinese/Taiwanese/Min Nan/Hokkien', 'Chinese/Wu/Shanghainese', 'Chinese/Xiang/Hunanese', 'Chinese/Xianghua', 'Chinese/Yue', 'Chinook', 'Ch\'ol', 'Chorti', 'Cispa', 'Coptic', 'Cornish', 'Corsican', 'Cree', 'Creole', 'Croatian', 'Czech', 'Danish', 'Delaware', 'Demonh\'ka', 'Denya', 'Duma', 'Dutch', 'Eggon', 'Ejagham', 'Ekegusii', 'Emakua', 'Eskimo', 'Esperanto', 'Estonian', 'Ewe', 'Fang', 'Faroese', 'Farsi', 'Finnish', 'Flemish', 'Frankish', 'French', 'Frisian', 'Fulfulde', 'Gaelic', 'Galician', 'Gaulish', 'Gamilaraay', 'Ganda', 'Gbari', 'Georgian', 'German', 'Gevove', 'Gilbertese', 'Ginyama', 'Gothic', 'Greek', 'Guarani', 'Gujarati', 'Gullah', 'Haida', 'Hakka', 'Hawaiian', 'Hausa', 'Hiligaynon', 'Hebrew', 'Hmong', 'Hindi', 'Hittite', 'Holoholo', 'Hungarian', 'Icelandic', 'Igbo', 'Ilongo', 'Indonesian', 'Ingush', 'Interlingua', 'Inuktitut', 'Inzebi', 'Irish', 'Ishkashmi', 'Italian', 'Jangshung', 'Japanese', 'Jita', 'Kalanga', 'Kannada', 'Kapampangan', 'Karelian', 'Kamviri', 'Karuk', 'Kashubian', 'Katcha', 'Kazakh', 'Kerewe', 'Khakas', 'Khmer', 'Khowar', 'Kiga', 'Kinyarwanda', 'Kituba', 'Klallam', 'Konkani', 'Korean', 'Koromfé', 'Koyo', 'Kurdish', 'Kyrgyz', 'Lao', 'Lakhota', 'Latgalian', 'Latin', 'Latvian', 'Lingala', 'Lithuanian', 'Livonian', 'Lojban', 'Lozi', 'Luxembourgish', 'Luwian', 'Lydian', 'Macedonian', 'Malagasy', 'Malay', 'Maliseet', 'Malayalam', 'Maltese', 'Mambwe', 'Manchu', 'Mandinka', 'Manx', 'Maori', 'Mapudungun', 'Marathi', 'Masaba', 'Mayan', 'Mayangna', 'Mawu', 'Miami', 'Michif', 'Miskitu', 'Mixtec', 'Mohawk', 'Mongolian', 'Mpongwe', 'Nahuatl', 'Nande', 'Nanticoke', 'Nauruan', 'Navajo', 'Ndebele', 'Nepalese', 'Newari', 'Nhirrpi', 'Norwegian', 'Nyambo', 'Nyamwezi', 'Occitan', 'Ojibwe', 'Olkola', 'Olutec', 'Onondaga', 'Oriya', 'Oscan', 'Oykangand', 'Pahlavi', 'Pakahn', 'Pali', 'Papiamento', 'Pashto', 'Pende', 'Passamdy', 'Phrygian', 'Pirahã', 'Polish', 'Popoluca', 'Portuguese', 'Potawatomi', 'Pulaar', 'Punjabi', 'Quechua', 'Quenya', 'Rapa Nui', 'Rasta', 'Rejang', 'Romani', 'Romanian', 'Roviana', 'Rotuman', 'Russian', 'Saanich', 'Saami', 'Samoan', 'Sanskrit', 'Sardinian', 'Scots', 'Serbian', 'Seri', 'Sherpa', 'Shi', 'Sina Bidoyoh', 'Shona', 'Shoshoni', 'Sindarin', 'Sinhalese', 'Slovak', 'Slovene', 'Sogdian', 'Somali', 'Sorbian', 'Spanish', 'Sranan', 'Sûdovian', 'Sumerian', 'Swabian', 'Swahili', 'Swedish', 'Swiss German', 'Tagalog', 'Tamasheq', 'Tahitian', 'Taino', 'Tajik', 'Tamazight', 'Tamil', 'Tarahumara', 'Tarok', 'Tatar', 'Telugu', 'Tetan', 'Thai', 'Tibetan', 'Tlingit', 'Tocharian', 'Tongan', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Ulwa', 'Umbrian', 'Üqoi', 'Urdu', 'Uyghur', 'Uzbek', 'Venda', 'Veps', 'Vietnamese', 'Votic', 'Wagiman', 'Walloon', 'Warlpiri', 'Welsh', 'Wolof', 'Wyandot', 'Xhosa', 'Yaka', 'Yao', 'Yemba', 'Yiddish', 'Yoruba', 'Zarma', 'Zoque', 'Zulu', 'Other'
     ];
-
-    var countryList = [
-      'United States', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Artsakh', 'Australia', 'Austria', 'Azerbaijan', 'The Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Democratic Republic of the Congo', 'Cook Islands', 'Costa Rica', 'Côte d\'Ivoire', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'The Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'South Korea', 'Democratic People\'s Republic of Korea', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'The Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Northern Cyprus', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Sahrawi Arab Democratic Republic', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'São Tomé and Príncipe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'Somaliland', 'South Africa', 'South Ossetia', 'Spain', 'Sri Lanka', 'Sudan', 'South Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Transnistria', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
-    ]
-
-    var USstateList = [
-      'Alabama',
-      'Alaska',
-      'Arizona',
-      'Arkansas',
-      'California',
-      'Colorado',
-      'Connecticut',
-      'Delaware',
-      'District of Columbia',
-      'Florida',
-      'Georgia',
-      'Hawaii',
-      'Idaho',
-      'Illinois',
-      'Indiana',
-      'Iowa',
-      'Kansas',
-      'Kentucky',
-      'Louisiana',
-      'Maine',
-      'Maryland',
-      'Massachusetts',
-      'Michigan',
-      'Minnesota',
-      'Mississippi',
-      'Missouri',
-      'Montana',
-      'Nebraska',
-      'Nevada',
-      'New Hampshire',
-      'New Jersey',
-      'New Mexico',
-      'New York',
-      'North Carolina',
-      'North Dakota',
-      'Ohio',
-      'Oklahoma',
-      'Oregon',
-      'Pennsylvania',
-      'Rhode Island',
-      'South Carolina',
-      'South Dakota',
-      'Tennessee',
-      'Texas',
-      'Utah',
-      'Vermont',
-      'Virginia',
-      'Washington',
-      'West Virginia',
-      'Wisconsin',
-      'Wyoming'
-    ]
 
     var surveyIntro = {
       type: jsPsychHtmlButtonResponse,
@@ -283,67 +271,27 @@
               type: jsPsychHtmlButtonResponse,
               stimulus: '<p align="center">What is your gender?</p>',
               prompt: '',
-              choices: ['Female', 'Male', 'Other', 'Prefer not to answer'],
+              choices: ['Woman', 'Man', 'Other', 'Prefer not to answer'],
               data: {"trialType": "gender"}
           }
       ]
     };
 
-    // var language = {
-    //   type: 'survey-text-dropdown',
-    //   questions: [
-    //       {
-    //       prompt: '<p align="center">What is your first/native language?</p>',
-    //       choices: langList
-    //       }
-    //   ],
-    //   data: {"trialType": "nativeLang"}
-    // };
-
-    var country = {
-      type: jsPsychSurveyMultiSelect,
+    var language = {
+      type: jsPsychSurveyTextDropdown,
       questions: [
           {
-              prompt: '<p align="center">What country/countries have you lived in during the covid-19 pandemic?</p>',
-              options: countryList,
-              horizontal: true,
-              required: false,
-              name: 'country'
-          },
+          prompt: '<p align="center">What is your first/native language?</p>',
+          choices: langList
+          }
       ],
-      data: { "trialType": "country"}
-    }
-
-    var USstate = {
-      type: jsPsychSurveyMultiSelect,
-      questions: [
-          {
-              prompt: '<p align="center">What US states have you lived in during the covid-19 pandemic?</p>',
-              options: USstateList,
-              horizontal: true,
-              required: false,
-              name: 'state'
-          },
-      ],
-      data: { "trialType": "state"}
-    }
-
-    var USConditional = {
-      timeline: [USstate],
-      conditional_function: function(data) {
-        var response = jsPsych.data.get().filter({trial_type: 'survey-multi-select'}).values()[0].response.country;
-        if (response.includes('United States')) {
-          return true;
-        } else {
-          return false;
-        }
-      }
+      data: {"trialType": "nativeLang"}
     };
 
     // Journal questions
     var journal = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<p align="center">Do you keep a journal or diary?</p>',
+        stimulus: '<p align="center">Do you write in a journal or diary (even occasionally)?</p>',
         choices: ['Yes', 'No', 'Prefer not to say'],
         data: { "trialType": "journal"}
     }
@@ -367,7 +315,7 @@
                 questions: [
                     {
                         prompt: '<p align="center">What do you use your journal for?</p>',
-                        options: ['Planning/to-do lists', 'Reflecting on my day', 'Working through emotions', 'Organizing my thoughts', 'Recording dreams', 'Other'],
+                        options: ['Planning/to-do lists', 'Reflecting on my day', 'Working through emotions', 'Organizing my thoughts', 'Mood tracking', 'Habit tracking', 'Recording dreams', 'Creative writing', 'Other'],
                         horizontal: true,
                         required: false,
                         name: 'journalContent'
@@ -416,7 +364,7 @@
         }
     };
 
-    // Communication experience and preference questions
+    /* Communication experience and preference questions */
     var practice = {
         type: jsPsychSurveyMultiSelect,
         questions: [
@@ -430,16 +378,15 @@
         ],
         data: { "trialType": "practice"}
     };
-
     var commpref = {
         type: jsPsychRanking,
-        alternatives: ['Texts/emails/written formats', 'Phone calls/voice only', 'Video calls', 'In person'], //i
-        labels: ['Prefer a lot', 'Prefer a little', 'Dislike a little', 'Dislike a lot'], //j
+        alternatives: ['Texts/emails/written formats', 'Phone calls/voice only', 'Video calls', 'In person'],
+        labels: ['Dislike a lot', 'Dislike a little', 'Prefer a little', 'Prefer a lot'],
         preamble: '<p>How do you prefer to converse with others?</p>',
         data: { "trialType": "commpref"}
     };
 
-    // Expression questions
+    /* Expression questions */
     var typingComfort = {
         type: jsPsychSurveyMultiChoice,
         questions: [
@@ -547,15 +494,16 @@
         data: { "trialType": "researchImpact"}
     };
 
-    // Free text experience
+    /* Free text experience */
     var freeField = {
         type: jsPsychSurveyText,
         questions: [
             {prompt: 'Is there anything else you want to share about your experience doing these tasks?', name: 'freeField', rows: 50, columns: 100}
-        ]
+        ],
+        data: { "trialType": "freeField" },
     }
 
-    // Mood and personality questions
+    /* Mood and personality questions */
     var anxietyBECK = {
       type: jsPsychSurveyMultiChoiceC,
       preamble: '<p align="left">Below is a list of common symptoms of anxiety. Please carefully read each item in the list. Indicate how much you have been bothered by that symptom during the past month, including today, by selecting the number below each symptom.</p><br><table align="center" width="90%" style="font-size: 0.9em"><tr><th>0</th><th>1</th><th>2</th><th>3</th></tr><tr><td>Not at all</td><td>Mildly, but it didn\'t bother me much</td><td>Moderately - it wasn\'t pleasant at times</td><td>Severely - it bothered me a lot</td></tr></table><br>',
@@ -713,7 +661,7 @@
 
     var depressionBECK = {
         type: jsPsychSurveyMultiChoiceC,
-        preamble: '<p align="left">This quesitionnaire consists of 20 groups of statements. Please read each group of statements carefully, and then pick out the <b>one statement</b> in each group that best describes the way you have been feeling during the <b>past two weeks, including today</b>. If several statements in the group seem to apply equally well, select the highest number for that group.<br>',
+        preamble: '<p align="left">This questionnaire consists of 20 groups of statements. Please read each group of statements carefully, and then pick out the <b>one statement</b> in each group that best describes the way you have been feeling during the <b>past two weeks, including today</b>. If several statements in the group seem to apply equally well, select the highest number for that group.<br>',
         questions: [
             {
                 prompt: '<b>1. Sadness</b>',
@@ -1245,92 +1193,110 @@
         ]
     };
 
-    var urlParam = window.location.search;
-    var userID = urlParam.replace('?id=', '');
-
     var dataLevels = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: `<p>What is your preference and comfort level for how your data from this study is used or seen?</p><p>Unless you choose to have your data deleted, results would be reported in the aggregate across many participants. In cases where you are comfortable with anyone seeing your data, we may include excerpts for demonstration sake or researchers may download it without requesting special access directly from the research team. We will not include identifiable information outside of what you may have written in your streams-of-consciousness.</p>`,
+      stimulus: `<p>What is your preference and comfort level for how your data from this study is used or seen?</p><p>Unless you choose to have your data deleted, results would be reported in the aggregate across many participants. In cases where you are comfortable with anyone seeing your de-identified data (such as your audio recordings or typed responses), we may include excerpts for demonstration sake or researchers may download it without requesting special access directly from the research team. We will not include identifiable information outside of what you may have shared in your streams-of-consciousness.</p>`,
       choices: ['Only the researchers on this project can see or use my original data', 'Researchers outside of this project\'s team can request access to my original data', 'You may add my data to an open-source database or share excerpts - anyone could potentially see it', '<span style="color:red">Please delete my data - I don\'t want anyone using or seeing it.</span>'],
-      margin_vertical: '8px'
+      margin_vertical: '8px',
+      data: {"trialType": "dataLevels"},
     };
 
-    var urlParam = window.location.search;
-    var userID = urlParam.replace('?id=', '');
+    /* For extracting ID from SONA */
+    // var urlParam = window.location.search;
+    // var userID = urlParam.replace('?id=', '');
 
     var debrief = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: `<p>Thank you for participating in this study!</p><p>In this study, we\’re interested in understanding how people think about the past, present, and future when considering the COVID-19 pandemic. We're also interested in how differences between individuals may be predictive of how they write in a stream of consciousness style format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
-      choices: ['Return to SONA for credit'],
+      stimulus: `<p>Thank you for participating in this study!</p><p>In this study, we\’re interested in understanding how people may speak or write to themselves when engaging in streams-of-consciousness. We're also interested in how differences between individuals may be predictive of how they write or speak in this format.</p><p>If you have any questions or comments about this research, you may contact the researchers at cbainbridge@ucla.edu.</p><p><i>If you are struggling or would like mental health care and support, there are several resources available at UCLA. Please visit www.studentincrisis.ucla.edu to learn more, or contact UCLA Counseling and Psychological Services by phone: 310-825-0768 or by email: info@caps.ucla.edu. If there is an urgent concern or you are experiencing a crisis, please contact 911 or the UCLA police (310-825-1491), available 24/7.</i></p>`,
+      choices: ['Submit'],
     }
 
-
     /* ~~~ END ~~~ */
-
-
-    // // Build out intro and initialization timeline
+    /* Build out audio recording initialization */
     // timeline.push(
-    //     welcome,
     //     mic_permission,
     //     microphone
     // );
 
-    // // Prepare condition - Add a trial that has both spoken and typed simultaneous to add into randomization
-    // if (condition == 'TS') {
-    //     timeline.push(
-    //         prompt_typed,
-    //         prompt_spoken,
-    //         recorder,
-    //         // replay_spoken
-    //     );
-    // } else if (condition == 'ST') {
-    //     timeline.push(
-    //         prompt_spoken,
-    //         recorder,
-    //         // replay_spoken,
-    //         prompt_typed
-    //     );
-    // }
-
-    // // Concluding questions
-    // timeline.push(
-    //     surveyIntro,
-    //     demographics,
-    //     journal,
-    //     journalConditional
-    // );
-
-    // var personalityArray = [depressionBECK, anxietyBECK, bigFive];
-    // var personalityArrayR = jsPsych.randomization.shuffle(personalityArray);
-    // timeline.push(personalityArrayR[0], personalityArrayR[1], personalityArrayR[2]);
-
-    // // End of experiment
-    // timeline.push(
-    //     dataLevels,
-    //     debrief
-    // );
-
-    // Questions timing test timeline
+    /*  Beginning of experiment */
     timeline.push(
-        // hello_trial,
+        welcome,
+        intro
+    )
+
+    /* Add trials based on condition */
+    if (condition == 'TS') {
+        console.log('Condition:')
+        console.log(condition)
+        timeline.push(
+            prompt_typed,
+            prompt_spoken,
+            recorder,
+        );
+    } else if (condition == 'ST') {
+        console.log('Condition:')
+        console.log(condition)
+        timeline.push(
+            prompt_spoken,
+            recorder,
+            prompt_typed
+        );
+    } else if (condition == 'TB') {
+        console.log('Condition:')
+        console.log(condition)
+        timeline.push(
+            prompt_typed,
+            prompt_both,
+            recorderText
+        );
+    } else if (condition == 'SB') {
+        console.log('Condition:')
+        console.log(condition)
+        timeline.push(
+            prompt_spoken,
+            recorder,
+            prompt_both,
+            recorderText
+        );
+    }
+
+    /* Testing one */
+    // timeline.push(
+    //     prompt_typed
+    // );
+
+    /* Concluding questions */
+    timeline.push(
+        surveyIntro,
         demographics,
-        // language,
+        language
+    );
+
+    /* Add survey scales (randomized order) */
+    var personalityArray = [depressionBECK, anxietyBECK, bigFive];
+    var personalityArrayR = jsPsych.randomization.shuffle(personalityArray);
+    timeline.push(personalityArrayR[0], personalityArrayR[1], personalityArrayR[2]);
+
+    /* Additional questions */
+    timeline.push(
+        practice,
+        commpref,
         journal,
         journalConditional,
         journalContentConditional,
-        practice,
-        commpref,
-        bigFive,
-        anxietyBECK,
-        depressionBECK,
         typingComfort,
         speakingComfort,
         overallComfort,
-        freeField,
+        freeField
+    );
+
+    /* End of experiment */
+    timeline.push(
+        dataLevels,
         debrief
     );
 
-    // Experiment logic
+    /* SONA logic - online runs only */
     // let sona_id = jsPsych.data.urlVariables()['sona_id']
 
 

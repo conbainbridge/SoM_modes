@@ -1,4 +1,4 @@
-var AudioKeytrackPlugin = (function (jspsych) {
+var JsPsychAudioKeytrack = (function (jspsych) {
     'use strict';
   
     const info = {
@@ -19,6 +19,10 @@ var AudioKeytrackPlugin = (function (jspsych) {
                 type: jspsych.ParameterType.INT,
                 default: 2000,
             },
+            countdown: {
+                type: jspsych.ParameterType.BOOL,
+                default: true,
+              },
             /** Whether or not to show a button to end the recording. If false, the recording_duration must be set. */
             show_done_button: {
                 type: jspsych.ParameterType.BOOL,
@@ -106,67 +110,94 @@ var AudioKeytrackPlugin = (function (jspsych) {
             this.jsPsych = jsPsych;
             this.rt = null;
             this.recorded_data_chunks = [];
+            this.keypresses = [];
         }
         trial(display_element, trial) {
             this.recorder = this.jsPsych.pluginAPI.getMicrophoneRecorder();
             this.setupRecordingEvents(display_element, trial);
             this.startRecording();
-
-            // Initialize countdown
-            var countdown;
-            var min;
-            var sec;
-            if(trial.trial_duration >= 1000) {
-                if (trial.trial_duration >= 60000) {
-                    var minsetup = (trial.trial_duration/1000); // 66,000 / 1000 = 66
-                    min = Math.trunc((trial.trial_duration/1000)/60);
-                    var modulus = minsetup % 60;
-                    sec = modulus
-                    countdown = min + ' min ' + sec +' sec'
+        }
+        showDisplay(display_element, trial) {
+            const ro = new ResizeObserver((entries, observer) => {
+                this.stimulus_start_time = performance.now();
+                observer.unobserve(display_element);
+                //observer.disconnect();
+            });
+            ro.observe(display_element);
+            let html = ``;
+           
+            //Initialize countdown
+            if (trial.countdown) {
+              var countdown;
+              var min;
+              var sec;
+              if(trial.recording_duration >= 1000) {
+                if (trial.recording_duration >= 60000) {
+                  var minsetup = (trial.recording_duration/1000); // 66,000 / 1000 = 66
+                  min = Math.trunc((trial.recording_duration/1000)/60);
+                  var modulus = minsetup % 60;
+                  sec = modulus
+                  countdown = min + ' min ' + sec +' sec'
+                  html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-survey-text-countdown" size=14>'+countdown+'</div></b></div>';
+                  html += `<div id="jspsych-html-audio-response-stimulus">${trial.stimulus}</div>`;
                 } else {
-                    countdown = Math.trunc(trial.trial_duration/1000)
+                    countdown = Math.trunc(trial.recording_duration/1000)
+                    countdown = countdown +' sec'
+                    html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-survey-text-countdown" size=14>'+countdown+'</div></b></div>';
+                    html += `<div id="jspsych-html-audio-response-stimulus">${trial.stimulus}</div>`;
                 }
+              } else {
+                  console.log("Trial duration is too short for countdown timer.")
+                  html += `<div id="jspsych-html-audio-response-stimulus">${trial.stimulus}</div>`;
+              }
+              
+              if (trial.show_done_button) {
+                  html += `<p><button class="jspsych-btn" id="finish-trial">${trial.done_button_label}</button></p>`;
+              }
             }
-            if (trial.trial_duration != null) {
-                html += '<div align="right" style="margin-top:15px"><b>Time remaining:<br><div id="jspsych-survey-text-countdown" size=14>'+countdown+'</div></b></div>';
-            }
-
             // add prompt
-            html += '<div id="jspsych-survey-text" class="jspsych-survey-text-question" style="margin: 2em 0em;">';
-            html += '<p class="jspsych-survey-text">' + trial.prompt + "</p>";
-
             // start form
             html += '<form id="jspsych-survey-text-form" autocomplete="off">'
-
             html += '<div id="jspsych-survey-text-form" class="jspsych-survey-text-question" style="margin: 2em 0em;">';
             html += '<p class="jspsych-survey-text">' + trial.prompt + "</p>";
-            var autofocus = i == 0 ? "autofocus" : "";
+            // var autofocus = i == 0 ? "autofocus" : "";
             var req = trial.required ? "required" : "";
 
             html += '<textarea id="input-text-trial" name="#jspsych-survey-text-response" cols="' + trial.columns +
                 '" rows="' + trial.rows + '" ' +
-                autofocus + " " + req +
+                // autofocus + 
+                " " + req +
                 ' placeholder="' + trial.placeholder +
             '"></textarea>';
             html += "</div>";
+            display_element.innerHTML = html;
 
-            // Start timer
-            // Countdown
+            // Start countdown
             var textElement = document.getElementById('jspsych-survey-text-countdown');
+            var minsetup = (trial.recording_duration/1000); // 66,000 / 1000 = 66
+            min = Math.trunc((trial.recording_duration/1000)/60);
+            var modulus = minsetup % 60;
+            sec = modulus
+            console.log(textElement.innerHTML)
             function myTimer () {
                 if (sec > 0) {
                     if (sec == 1) {
-                    sec = sec + 60
-                    countdown = min + ' min 0 sec'
-                    min = min - 1;
-                    textElement.innerHTML = countdown;
+                        sec = sec + 60
+                        countdown = min + ' min 0 sec'
+                        min = min - 1;
+                        textElement.innerHTML = countdown;
                     } else {
-                    countdown = min + ' min ' + (sec-1) +' sec'
-                    textElement.innerHTML = countdown;
+                        if (min == 0) {
+                            countdown = (sec-1) +' sec'
+                            textElement.innerHTML = countdown;
+                        } else {
+                            countdown = min + ' min '+ (sec-1) +' sec'
+                            textElement.innerHTML = countdown;
+                        }
                     }
                     if (--sec < 0 && min < 1) {
-                    console.log('trigger')
-                    sec = 0;
+                        console.log('trigger')
+                        sec = 0;
                     }
                 } else {
                     min = min - 1;
@@ -181,11 +212,11 @@ var AudioKeytrackPlugin = (function (jspsych) {
             }
             // Start Countdown
             // (enabled by default)
-            if (trial.trial_duration != null) {
-            timerInterval = setInterval(myTimer, 1000);
+            if (trial.recording_duration != null) {
+                timerInterval = setInterval(myTimer, 1000);
             }
 
-            // Save all key presses
+            // Save all keys
             var keypresses = [];
             document.onkeydown = function (e) {
                 var time = e.timeStamp;
@@ -196,44 +227,10 @@ var AudioKeytrackPlugin = (function (jspsych) {
                 };
                 keypresses.push(keydata)
             }
+            this.keypresses = keypresses;
+
         }
-            
-        showDisplay(display_element, trial) {
-            const ro = new ResizeObserver((entries, observer) => {
-                this.stimulus_start_time = performance.now();
-                observer.unobserve(display_element);
-                //observer.disconnect();
-            });
-            ro.observe(display_element);
-            html += `<div id="jspsych-html-audio-response-stimulus">${trial.stimulus}</div>`;
-            if (trial.show_done_button) {
-                html += `<p><button class="jspsych-btn" id="finish-trial">${trial.done_button_label}</button></p>`;
-            }
-            display_element.innerHTML = html;
-        }
-        hideStimulus(display_element) {
-            const el = display_element.querySelector("#jspsych-html-audio-response-stimulus");
-            if (el) {
-                el.style.visibility = "hidden";
-            }
-        }
-        addButtonEvent(display_element, trial) {
-            const btn = display_element.querySelector("#finish-trial");
-            if (btn) {
-                btn.addEventListener("click", () => {
-                    const end_time = performance.now();
-                    this.rt = Math.round(end_time - this.stimulus_start_time);
-                    this.stopRecording().then(() => {
-                        if (trial.allow_playback) {
-                            this.showPlaybackControls(display_element, trial);
-                        }
-                        else {
-                            this.endTrial(display_element, trial);
-                        }
-                    });
-                });
-            }
-        }
+
         setupRecordingEvents(display_element, trial) {
             this.data_available_handler = (e) => {
                 if (e.data.size > 0) {
@@ -256,7 +253,7 @@ var AudioKeytrackPlugin = (function (jspsych) {
                 this.recorded_data_chunks.length = 0;
                 this.recorder_start_time = e.timeStamp;
                 this.showDisplay(display_element, trial);
-                this.addButtonEvent(display_element, trial);
+                // this.addButtonEvent(display_element, trial);
                 // setup timer for hiding the stimulus
                 if (trial.stimulus_duration !== null) {
                     this.jsPsych.pluginAPI.setTimeout(() => {
@@ -319,24 +316,16 @@ var AudioKeytrackPlugin = (function (jspsych) {
             // kill any remaining setTimeout handlers
             this.jsPsych.pluginAPI.clearAllTimeouts();
             // gather the data to store for the trial
-            var text_response = {};
-            var q_element = document
-            .querySelector("textarea, input");
-            var val = q_element.value;
-            var name = q_element.attributes["data-name"].value;
-            if (name == "") {
-                name = id;
-            }
-            var obje = {};
-            obje[name] = val;
-            Object.assign(text_response, obje);
+            var q_element = document.querySelector("textarea, input");
+            var text_response = q_element.value;
+            // Object.assign(text_response, val);
 
             var trial_data = {
-                rt: this.rt,
+                // rt: this.rt,
                 stimulus: trial.stimulus,
                 audio_response: this.response,
                 text_response: text_response,
-                key_tracking: keypresses,
+                key_tracking: this.keypresses,
                 estimated_stimulus_onset: Math.round(this.stimulus_start_time - this.recorder_start_time),
             };
             if (trial.save_audio_url) {
